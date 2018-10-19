@@ -19,7 +19,7 @@ deps:
 	$(eval PULLED_IMAGE := $(shell docker images | grep $(DB_IMAGE)))
 	@if ! test -n "$(VENV)"; then \
 		echo "Can't find '.venv' in current dir."; \
-		pipenv install; \
+		PIPENV_VENV_IN_PROJECT=true pipenv install; \
 	else \
 		echo "Virtualenv has already been prepared."; \
 	fi
