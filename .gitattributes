@@ -1,0 +1,3 @@
+src/static/admin/* linguist-vendored
+src/static/rest_framework/* linguist-vendored
+src/static/rest_framework_swagger/* linguist-vendored
