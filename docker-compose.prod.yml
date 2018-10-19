@@ -38,8 +38,9 @@ services:
       - ./src/media:/usr/share/www/html/media
     depends_on:
       - webapp
-    ports:
-      - 8080:80
+    expose:
+      - 80
+      - 443
     networks:
       shared:
         aliases:
