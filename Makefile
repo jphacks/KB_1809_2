@@ -34,6 +34,8 @@ image: $(SRCS) $(DOCKERFILE)
 	$(eval REVISION:= $(shell git rev-parse --short HEAD || echo "None"))
 	docker build . -t studioaquatan/plannap-api:latest
 
+pull:
+	docker pull studioaquatan/plannap-api:latest
 
 rundb:
 	$(eval RUNNING := $(shell docker ps -q -f name=$(DEV_DB_CONTAINER)))

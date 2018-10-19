@@ -1,14 +1,32 @@
+sudo: true
+dist: trusty
+
 addons:
   ssh_known_hosts: aqua.aquatan.studio
+
+services: docker
+
 branches:
   only:
     - master
     - dev
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_49f5ccf52a09_key -iv $encrypted_49f5ccf52a09_iv -in .travis/aquatan_studio.enc -out /tmp/aquatan_studio -d
+  - eval "$(ssh-agent -s)"
+  - chmod 600 /tmp/aquatan_studio
+  - ssh-add /tmp/aquatan_studio
+
 script:
-  - echo ok
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t plannap-api .
+  - docker images
+  - docker tag plannap-api studioaquatan/plannap-api:latest
+  - docker push studioaquatan/plannap-api:latest
+
 deploy:
   provider: script
   skip_cleanup: true
   script: /bin/bash .travis/deploy.sh
   on:
-    branch: master
+    branch: dev
