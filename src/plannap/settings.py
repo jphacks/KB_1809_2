@@ -11,15 +11,16 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import pathlib
 import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-env_file = os.path.join(BASE_DIR, '.env')
+env_file = pathlib.Path(BASE_DIR).parent / "env_files" / "api.env"  # type: pathlib.Path
 
-if os.path.exists(env_file):
-    dotenv.load_dotenv(env_file)
+if env_file.exists():
+    dotenv.load_dotenv(env_file.as_posix())
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -91,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'PORT': int(os.getenv('DB_PORT', '3306')),
     }
@@ -134,6 +135,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
