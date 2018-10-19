@@ -4,8 +4,6 @@ services:
   webapp:
     container_name: plannap-api
     image: studioaquatan/plannap-api:latest
-    volumes:
-      - ./src:/opt/plannap-api
     env_file:
       - env_files/api.env
     expose:
@@ -24,7 +22,7 @@ services:
     volumes:
       - ./env_files/data:/var/lib/mysql
     networks:
-      default:
+      shared:
         aliases:
           - plannap-db
   nginx:
