@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  webapp:
+    container_name: plannap-api-qa
+    image: studioaquatan/plannap-api:latest
+    volumes:
+      - ./src:/opt/plannap-api
+    env_file:
+      - env_files/api.env
+    expose:
+      - 8000
+    depends_on:
+      - db
+    networks:
+      default:
+        aliases:
+          - plannap-api
+  db:
+    image: studioaquatan/mysql-utf8mb4:latest
+    container_name: plannap-db-qa
+    env_file:
+      - env_files/db.env
+    volumes:
+      - ./env_files/data:/var/lib/mysql
+    networks:
+      default:
+        aliases:
+          - plannap-db
+  nginx:
+    image: nginx:latest
+    container_name: plannap-nginx-qa
+    env_file:
+      - env_files/static.env
+    volumes:
+      - ./env_files/conf:/etc/nginx/conf.d
+      - ./src/static:/usr/share/www/html/static
+      - ./src/media:/usr/share/www/html/media
+    depends_on:
+      - webapp
+    ports:
+      - 8080:80

@@ -1,0 +1,14 @@
+addons:
+  ssh_known_hosts: aqua.aquatan.studio
+branches:
+  only:
+    - master
+    - dev
+script:
+  - echo ok
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: /bin/bash .travis/deploy.sh
+  on:
+    branch: master

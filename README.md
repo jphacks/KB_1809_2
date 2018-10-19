@@ -40,18 +40,26 @@ You can open this repository in PyCharm.
 
 ### Start DB container
 
+Prepare config
+
+```bash
+$ cp db.env.sample db.env
+$ vim db.env
+```
+
 ```bash
 $ make rundb
 # Stop
-$ make stop
+$ make stopdb
+# Delete
+$ make rmdb
 ```
 
-### Prepare .env
+### Prepare .env for app
 
 ```bash
-$ cd src
-$ cp .env.sample .env
-$ vim .env
+$ cp api.env.sample api.env
+$ vim api.env
 ```
 
 ### Migrate
@@ -67,8 +75,29 @@ Create super user
 $ pipenv run python manage.py createsuperuser
 ```
 
+Start server
+
+```bash
+$ pipenv run python manage.py runserver
+```
+
 ### Build image
 
 ```bash
 $ make image
+```
+
+## QA
+
+`docker-compose.yml` is a QA environment. The structure of it is almost same as the production.
+
+```bash
+# Start
+$ make qa-start
+# Stop
+$ make qa-stop
+# Delete containers
+$ make qa-clean
+# Run manage.py in qa
+$ make qa-manage ARGS="some command"
 ```

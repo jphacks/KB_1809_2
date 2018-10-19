@@ -219,3 +219,7 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+
+env_files/*.env
+env_files/data/*
+!env_files/data/.git-keep

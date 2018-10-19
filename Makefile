@@ -3,8 +3,6 @@ SHELL   := /bin/bash
 NAME    := plannap
 
 SRCS    := $(shell find ./src -type f \( -name '*.css' -o -name '*.py' -o -name '*.html' -o -name '*.js' \) -print)
-VERSION := $(shell git describe --tags || echo "v0.0.0")
-REVISION:= $(shell git rev-parse --short HEAD || echo "None")
 DOCKERFILE := Dockerfile
 DB_USER := develop
 DB_PASSWORD := password
@@ -14,6 +12,7 @@ DB_PORT := 3306
 DEV_DB_CONTAINER := $(NAME)-db-dev
 DB_IMAGE := studioaquatan/mysql-utf8mb4
 DB_IMAGE_VERSION := latest
+ARGS := "-h"
 
 deps:
 	$(eval VENV := $(shell ls -a | grep .venv))
@@ -31,7 +30,10 @@ deps:
 	fi
 
 image: $(SRCS) $(DOCKERFILE)
+	$(eval VERSION := $(shell git describe --tags || echo "v0.0.0"))
+	$(eval REVISION:= $(shell git rev-parse --short HEAD || echo "None"))
 	docker build . -t studioaquatan/plannap-api:latest
+
 
 rundb:
 	$(eval RUNNING := $(shell docker ps -q -f name=$(DEV_DB_CONTAINER)))
@@ -41,7 +43,7 @@ rundb:
 	@echo "Password: $(DB_PASSWORD)"
 	@echo "Database: $(DB_NAME)"
 	@echo "Port: $(DB_PORT)"
-	@echo "You can connect this DB on 'localhost:$(DB_PORT)'"
+	@echo "You can connect this DB on '127.0.0.1:$(DB_PORT)'"
 	@if test -n "$(RUNNING)" || test -n "$(STOPPING)"; then \
 		docker start $(DEV_DB_CONTAINER) > /dev/null;\
 	else \
@@ -54,7 +56,27 @@ rundb:
 			$(DB_IMAGE):$(DB_IMAGE_VERSION) > /dev/null; \
 	fi
 
-stop:
+stopdb:
 	docker stop $(DEV_DB_CONTAINER) > /dev/null
 
-.PHONY: deps image rundb stop ;
+rmdb: stopdb
+	docker rm $(DEV_DB_CONTAINER) > /dev/null
+
+cleandb:
+	@echo "Delete database..."
+	@cd env_files/data && ls -a | grep -v -E "^\.|^\.\.|^\.git-keep" | xargs rm -rf && cd ../../
+	@echo "Done"
+
+qa-start:
+	docker-compose up -d
+
+qa-stop:
+	docker-compose stop
+
+qa-manage:
+	docker-compose exec webapp pipenv run python manage.py $(ARGS)
+
+qa-clean: qa-stop
+	docker-compose rm
+
+.PHONY: deps image rundb stopdb cleandb qa-start qa-stop qa-manage qa-clean ;

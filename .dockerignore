@@ -1,0 +1,8 @@
+.venv
+env_files
+src/static
+
+.travis.yml
+docker-compose.prod.yml
+docker-compose.yml
+Makefile
