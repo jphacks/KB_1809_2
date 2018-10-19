@@ -18,7 +18,7 @@ before_install:
   - ssh-add /tmp/aquatan_studio
 
 script:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - docker build -t plannap-api .
   - docker images
   - docker tag plannap-api studioaquatan/plannap-api:latest
