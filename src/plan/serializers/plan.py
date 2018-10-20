@@ -17,9 +17,11 @@ class PlanSerializer(serializers.ModelSerializer):
     favs = FavSerializer(many=True, allow_null=True)
     comments = CommentSerializer(many=True, allow_null=True)
     reports = ReportSerializer(many=True, allow_null=True)
+    user = SimpleUserSerializer()
     location = LocationSerializer()
 
     class Meta:
         model = Plan
         fields = ('pk', 'name', 'price', 'duration', 'note', 'location',
-                  'reports', 'favs', 'created_at', 'comments', 'spots')
+                  'reports', 'favs', 'created_at', 'comments', 'spots', 'user',
+                  'favorite_count', 'comment_count')
