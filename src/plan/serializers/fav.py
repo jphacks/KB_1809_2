@@ -3,7 +3,7 @@ from rest_framework import serializers
 from plan.models import Fav, Plan
 from accounts.models import User
 
-from .user import SimpleUserSerializer
+from accounts.serializers import SimpleUserSerializer
 
 
 class FavSerializer(serializers.ModelSerializer):

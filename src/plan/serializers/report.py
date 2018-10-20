@@ -4,7 +4,7 @@ from drf_extra_fields.fields import Base64ImageField
 from plan.models import Report, Plan
 from accounts.models import User
 
-from .user import SimpleUserSerializer
+from accounts.serializers import SimpleUserSerializer
 
 
 class ReportSerializer(serializers.ModelSerializer):
