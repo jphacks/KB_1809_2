@@ -12,7 +12,7 @@ class CommentSerializer(serializers.ModelSerializer):
     """
 
     user = SimpleUserSerializer()
-    plan = serializers.PrimaryKeyRelatedField()
+    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     class Meta:
         model = Comment
