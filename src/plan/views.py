@@ -1,9 +1,19 @@
 from rest_framework import viewsets
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
-
+from django_filters import rest_framework as filters
 
 from . import models, serializers
+
+
+class LocationFilter(filters.FilterSet):
+    # フィルタの定義
+    p_name = filters.CharFilter(lookup_expr="contains")
+    m_name = filters.CharFilter(lookup_expr="contains")
+
+    class Meta:
+        model = models.Location
+        fields = ['p_name', 'm_name']
 
 
 class LocationViewSets(viewsets.ModelViewSet):
@@ -11,6 +21,7 @@ class LocationViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
+    filter_class = LocationFilter
 
 
 class SpotViewSets(viewsets.ModelViewSet):
