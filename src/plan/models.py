@@ -40,3 +40,33 @@ class Spot(models.Model):
     note = models.TextField("ノート")
     image = models.ImageField("投稿画像")
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+
+class Fav(models.Model):
+    """
+    ユーザーがお気に入りしたPlanのデータ
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favs", verbose_name="ユーザー")
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="favs", verbose_name="プラン")
+    created_at = models.DateTimeField("お気に入りした日時", auto_now_add=True)
+
+
+class Comment(models.Model):
+    """
+    ユーザーがプランに対して送ったコメントのデータ
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments", verbose_name="ユーザー")
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="comments", verbose_name="プラン")
+    text = models.TextField("テキスト")
+    created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+
+class Report(models.Model):
+    """
+    プランを参考にしてデートしたユーザーのレポートのデータ
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reports", verbose_name="ユーザー")
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="reports", verbose_name="プラン")
+    text = models.TextField("テキスト")
+    image = models.ImageField("投稿画像")
+    created_at = models.DateTimeField("投稿日時", auto_now_add=True)
