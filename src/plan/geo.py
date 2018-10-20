@@ -2,20 +2,20 @@ import requests
 
 
 class LocationMeta:
-    def __init__(self, pname: str, pcode: int, mname: str, mcode: int, lat: float, lon: float):
+    def __init__(self, p_name: str, p_code: int, m_name: str, m_code: int, lat: float, lon: float):
         """
         位置情報をまとめたクラス
-        :param pname: 都道府県名
-        :param pcode: 都道府県コード
-        :param mname: 市区町村名
-        :param mcode: 市区町村コード
+        :param p_name: 都道府県名
+        :param p_code: 都道府県コード
+        :param m_name: 市区町村名
+        :param m_code: 市区町村コード
         :param lat: 緯度
         :param lon: 経度
         """
-        self.pname = pname
-        self.pcode = pcode
-        self.mname = mname
-        self.mcode = mcode
+        self.p_name = p_name
+        self.p_code = p_code
+        self.m_name = m_name
+        self.m_code = m_code
         self.lat = lat
         self.lon = lon
 
@@ -46,4 +46,4 @@ def convert_geo_to_location(lat: float, lon: float) -> LocationMeta:
 
 # Usage
 # l = convert_geo_to_location(34.6848759, 135.1982840)
-# print(l.pname, l.pcode, l.mname, l.mcode, l.lat, l.lon)
+# print(l.p_name, l.p_code, l.m_name, l.m_code, l.lat, l.lon)
