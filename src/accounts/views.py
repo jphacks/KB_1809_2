@@ -6,9 +6,9 @@ from .forms import LoginForm
 class Login(LoginView):
     """ログインページ"""
     form_class = LoginForm
-    template_name = 'login.html'
+    template_name = 'accounts/login.html'
 
 
 class Logout(LoginRequiredMixin, LogoutView):
     """ログアウトページ"""
-    template_name = 'top.html'
+    template_name = 'accounts/top.html'

@@ -142,6 +142,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SEND_CONFIRMATION_EMAIL': False,
+    'SERIALIZERS': {
+        'user': 'accounts.serializers.UserSerializer',
+    },
+}
+
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': 'accounts:login',
+    'LOGOUT_URL': 'accounts:logout',
 }
 
 REST_FRAMEWORK = {
