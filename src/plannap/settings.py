@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_jwt',
     'rest_framework_swagger',
     'djoser',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +63,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'plannap.urls'
+AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATES = [
     {
@@ -140,6 +142,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SEND_CONFIRMATION_EMAIL': False,
+    'SERIALIZERS': {
+        'user': 'accounts.serializers.UserSerializer',
+    },
+}
+
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': 'accounts:login',
+    'LOGOUT_URL': 'accounts:logout',
 }
 
 REST_FRAMEWORK = {
