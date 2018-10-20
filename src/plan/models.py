@@ -30,8 +30,6 @@ class Plan(models.Model):
     name = models.CharField("コース名", max_length=255)
     price = models.IntegerField("予算", default=0)
     duration = models.IntegerField("かかる時間", default=0)
-    lat = models.FloatField("緯度")
-    lon = models.FloatField("経度")
     note = models.TextField("投稿内容")
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="plans", verbose_name="位置情報",
                                  null=True, blank=True)
