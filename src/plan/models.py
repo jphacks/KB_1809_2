@@ -63,7 +63,7 @@ class Spot(models.Model):
     note = models.TextField("ノート")
     image = models.ImageField("投稿画像", upload_to=get_image_path)
     order = models.IntegerField("回る順番", default=0)
-    created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+    created_at = models.DateTimeField("投稿日時")
 
     def __str__(self):
         """スポット名を返却"""

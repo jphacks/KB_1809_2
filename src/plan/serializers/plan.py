@@ -9,6 +9,8 @@ from .location import LocationSerializer
 from plan.geo import convert_geo_to_location
 from accounts.serializers import SimpleUserSerializer
 
+import datetime
+
 
 class AbstractPlanSerializer(serializers.ModelSerializer):
     """
@@ -67,7 +69,8 @@ class PlanSerializer(serializers.ModelSerializer):
         lat, lon = 0, 0
         plan = Plan.objects.create(user=user, **validated_data)
         for i, spot_data in enumerate(spots_data):
-            Spot.objects.create(plan=plan, order=i, **spot_data)
+            created_at = datetime.datetime.now()
+            Spot.objects.create(plan=plan, order=i, created_at=created_at, **spot_data)
             # 経度緯度を全て足し合わせる
             lat += spot_data['lat']
             lon += spot_data['lon']
