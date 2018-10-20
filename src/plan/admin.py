@@ -21,8 +21,8 @@ class SpotInline(admin.StackedInline):
 class SpotAdmin(admin.ModelAdmin):
     list_display = ('name', 'get_plan', 'created_at')
 
-    def get_plan(self):
-        return self.obj.plan.name
+    def get_plan(self, obj):
+        return obj.plan.name
 
 
 @admin.register(Plan)
@@ -36,8 +36,8 @@ class PlanAdmin(admin.ModelAdmin):
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('get_plan', 'get_username', 'created_at')
 
-    def get_plan(self):
-        return self.obj.plan.name
+    def get_plan(self, obj):
+        return obj.plan.name
 
-    def get_username(self):
-        return self.obj.user.username
+    def get_username(self, obj):
+        return obj.user.username
