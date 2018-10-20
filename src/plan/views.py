@@ -50,3 +50,10 @@ class CommentViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated,)
+
+
+class PlanViewSets(viewsets.ModelViewSet):
+    queryset = models.Plan.objects.all()
+    parser_classes = (JSONParser,)
+    serializer_class = serializers.PlanSerializer
+    permission_classes = (IsAuthenticated,)
