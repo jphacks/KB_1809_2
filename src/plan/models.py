@@ -19,6 +19,10 @@ class Location(models.Model):
     m_name = models.CharField("市区町村名", max_length=255)
     m_code = models.IntegerField("市区町村コード")
 
+    def __str__(self):
+        """都道府県名+市区町村名を返却"""
+        return self.p_name + " " + self.m_name
+
 
 class Plan(models.Model):
     """
@@ -35,6 +39,10 @@ class Plan(models.Model):
                                  null=True, blank=True)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
 
+    def __str__(self):
+        """プランの名前を返却"""
+        return self.name
+
 
 class Spot(models.Model):
     """
@@ -49,6 +57,10 @@ class Spot(models.Model):
     order = models.IntegerField("回る順番", default=0)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
 
+    def __str__(self):
+        """スポット名を返却"""
+        return self.name
+
     class Meta:
         unique_together = ("plan", "order")
 
@@ -61,6 +73,7 @@ class Fav(models.Model):
                              verbose_name="ユーザー")
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="favs", verbose_name="プラン")
     created_at = models.DateTimeField("お気に入りした日時", auto_now_add=True)
+
 
 
 class Comment(models.Model):
