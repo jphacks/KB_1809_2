@@ -25,7 +25,8 @@ class AbstractPlanSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         res = super(AbstractPlanSerializer, self).to_representation(instance)
         all_spots = res['spots']
-        res['spots'] = [all_spots[0], all_spots[-1]]
+        if len(res['spots']) > 0:
+            res['spots'] = [all_spots[0], all_spots[-1]]
         return res
 
 
