@@ -44,3 +44,7 @@ def convert_geo_to_location(lat: float, lon: float) -> Optional[LocationMeta]:
     mun = res['result']['municipality']
 
     return LocationMeta(pre['pname'], pre['pcode'], mun['mname'], mun['mcode'], lat, lon)
+
+# for debug
+# l = convert_geo_to_location(34.6848759, 135.1982840)
+# print(l.p_name, l.p_code, l.m_name, l.m_code)
