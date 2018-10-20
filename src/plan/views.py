@@ -1,9 +1,8 @@
 from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Q
 from django_filters import rest_framework as filters
 
 from . import models, serializers
@@ -55,15 +54,29 @@ class CommentViewSets(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
+class PlanLocationFilter(filters.FilterSet):
+    location = filters.CharFilter(method='filter_p_and_m_name')
+
+    class Meta:
+        models = models.Plan
+        fields = ('location',)
+
+    def filter_p_and_m_name(self, queryset, name, value):
+        return queryset.filter(
+            Q(location__p_name__contains=value)| Q(location__m_name__contains=value)
+        )
+
+
 class PlanViewSets(viewsets.ModelViewSet):
     queryset = models.Plan.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated,)
+    filter_class = PlanLocationFilter
 
     def list(self, request, *args, **kwargs):
         """一覧表示の場合は情報を削減したSerializerを使用する"""
-        serializer = serializers.AbstractPlanSerializer(models.Plan.objects.all(),
+        serializer = serializers.AbstractPlanSerializer(self.filter_queryset(models.Plan.objects.all()),
                                                         many=True, context={'request': request})
         return Response(serializer.data)
 
