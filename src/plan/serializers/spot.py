@@ -11,12 +11,15 @@ class SpotListSerializer(BaseListSerializer):
     """
 
     def create(self, validated_data):
-        spots = [Spot(**item) for item in validated_data]
+        spots = list()
+        for i, s in enumerate(validated_data):
+            new_spot = Spot(**s, order=i)
+            spots.append(new_spot)
+
         return Spot.objects.bulk_create(spots)
 
 
 class SpotSerializer(serializers.ModelSerializer):
-
     """
     単一のSpotを処理するSerializer
     """
