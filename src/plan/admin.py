@@ -56,7 +56,7 @@ class FavAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'get_username', 'get_plan_name', 'text', 'created_at')
+    list_display = ('pk', 'get_username', 'get_plan_name', 'created_at')
 
     def get_username(self, obj):
         return obj.user.username
