@@ -4,9 +4,10 @@ from plan.models import Fav, Plan
 from accounts.models import User
 
 from accounts.serializers import SimpleUserSerializer
+from .base import BaseListSerializer
 
 
-class FavListSerializer(serializers.ListSerializer):
+class FavListSerializer(BaseListSerializer):
     """
     複数のFavを処理するSerializer
     """
@@ -14,25 +15,6 @@ class FavListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
         favs = [Fav(**item) for item in validated_data]
         return Fav.objects.bulk_create(favs)
-
-    def update(self, instance, validated_data):
-        fav_mapping = {fav.id: fav for fav in instance}
-        data_mapping = {item['id']: item for item in validated_data}
-
-        ret = []
-        for fav_id, spot_data in data_mapping.items():
-            fav = fav_mapping.get(fav_id)
-            if fav:
-                # 既に存在するIDなので情報をアップデート
-                ret.append(self.child.update(fav, spot_data))
-            else:
-                # 存在しないので作成
-                ret.append(self.child.create(spot_data))
-        for fav_id, fav in fav_mapping.items():
-            if fav_id not in data_mapping:
-                # DBに存在するがPOSTされてきたデータに存在しないデータを削除
-                fav.delete()
-        return ret
 
 
 class FavSerializer(serializers.ModelSerializer):
