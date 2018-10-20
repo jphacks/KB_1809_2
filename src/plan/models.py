@@ -75,7 +75,6 @@ class Fav(models.Model):
     created_at = models.DateTimeField("お気に入りした日時", auto_now_add=True)
 
 
-
 class Comment(models.Model):
     """
     ユーザーがプランに対して送ったコメントのデータ
