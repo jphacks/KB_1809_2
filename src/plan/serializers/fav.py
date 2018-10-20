@@ -12,11 +12,11 @@ class FavSerializer(serializers.ModelSerializer):
     """
 
     user = SimpleUserSerializer()
-    plan = serializers.PrimaryKeyRelatedField()
+    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     class Meta:
         model = Fav
-        field = ("pk", "user", "plan")
+        fields = ("pk", "user", "plan")
 
     def to_internal_value(self, data):
         user_id = data.get('user_id')

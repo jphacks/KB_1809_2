@@ -14,7 +14,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
     image = Base64ImageField()
     user = SimpleUserSerializer()
-    plan = serializers.PrimaryKeyRelatedField()
+    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     class Meta:
         model = Report
