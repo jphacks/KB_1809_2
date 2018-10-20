@@ -1,6 +1,18 @@
+import os
+import uuid
+from urllib.parse import urljoin
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.validators import ASCIIUsernameValidator
+from django.utils.safestring import mark_safe
+
+
+def get_image_path(instance, filename):
+    prefix = 'icon/'
+    name = str(uuid.uuid4()).replace('-', '')
+    extension = os.path.splitext(filename)[-1]
+    return prefix + name + extension
 
 
 class UserManager(BaseUserManager):
@@ -39,7 +51,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """
-    学生のモデル
+    ユーザのモデル
     """
     # ユーザ名をバリデーション
     username_validator = ASCIIUsernameValidator()
@@ -54,6 +66,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField('登録日時', auto_now_add=True)
     updated_at = models.DateTimeField('更新日時', auto_now=True)
 
+    icon = models.ImageField("アイコン", upload_to=get_image_path, default="icons/user.png",
+                             null=True, blank=True)
+
     USERNAME_FIELD = 'username'
 
     objects = UserManager()
@@ -61,6 +76,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """ユーザ名を返却"""
         return self.username
+
+    def tag_user_icon(self):
+        """ユーザiconをhtmlに埋め込んで返す"""
+        return mark_safe('<img src="{url}" style="max-width: 120px;height: auto;">'.format(url=self.icon.url))
 
     class Meta:
         ordering = ['username']
