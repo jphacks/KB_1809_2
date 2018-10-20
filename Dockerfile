@@ -11,8 +11,18 @@ WORKDIR ${PROJECT_DIR}
 RUN apk update && \
     apk add --no-cache \
         mariadb-dev \
-        pcre-dev && \
-    apk add --no-cache --virtual=build_dep \
+        pcre-dev \
+        jpeg-dev \
+        zlib-dev \
+        freetype-dev \
+        lcms2-dev \
+        openjpeg-dev \
+        tiff-dev \
+        tk-dev \
+        tcl-dev && \
+        rm -rf /ver/cache/apk/*
+
+RUN apk add --no-cache --virtual=build_dep \
         python3-dev \
         gcc \
         build-base \
