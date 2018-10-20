@@ -15,6 +15,7 @@ mysqlclient = "*"
 pillow = "*"
 requests = "*"
 django-extra-fields = "*"
+django-filter = "*"
 
 [dev-packages]
 
