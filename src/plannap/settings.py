@@ -145,6 +145,7 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL': False,
     'SERIALIZERS': {
         'user': 'accounts.serializers.UserSerializer',
+        'user_create': 'accounts.serializers.CreateUserSerializer',
     },
 }
 
