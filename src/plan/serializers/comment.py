@@ -3,10 +3,20 @@ from rest_framework import serializers
 from plan.models import Comment, Plan
 from accounts.models import User
 
+from accounts.serializers import SimpleUserSerializer
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """
     単一のCommentを処理するSerializer
     """
+
+    user = SimpleUserSerializer()
+    plan = serializers.PrimaryKeyRelatedField()
+
+    class Meta:
+        model = Comment
+        fields = ("pk", "user", "plan", "text")
 
     def to_internal_value(self, data):
         user_id = data.get('user_id')
