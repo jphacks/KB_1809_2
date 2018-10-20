@@ -42,12 +42,17 @@ class Spot(models.Model):
     """
     店や場所など点のデータ
     """
+    name = models.CharField("スポット名", max_length=255, default="")
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="spots", verbose_name="プラン")
     lat = models.FloatField("緯度")
     lon = models.FloatField("経度")
     note = models.TextField("ノート")
     image = models.ImageField("投稿画像", upload_to=get_image_path)
+    order = models.IntegerField("回る順番", default=0)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+    class Meta:
+        unique_together = ("plan", "order")
 
 
 class Fav(models.Model):
