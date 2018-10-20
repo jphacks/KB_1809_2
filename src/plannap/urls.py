@@ -14,8 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework_swagger.views import get_swagger_view
+
+from accounts import urls as accounts_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('djoser.urls.base')),
+    path('auth/', include('djoser.urls.jwt')),
+    path('swagger/', get_swagger_view(title='Plannap API Document')),
+    path('accounts/', include(accounts_urls)),
 ]
+
