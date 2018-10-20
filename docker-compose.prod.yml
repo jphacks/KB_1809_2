@@ -4,6 +4,8 @@ services:
   webapp:
     container_name: plannap-api
     image: studioaquatan/plannap-api:latest
+    volumes:
+      - ./src/media:/opt/plannap-api/media
     env_file:
       - env_files/api.env
     expose:
