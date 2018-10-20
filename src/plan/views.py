@@ -63,6 +63,7 @@ class PlanViewSets(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """一覧表示の場合は情報を削減したSerializerを使用する"""
-        serializer = serializers.AbstractPlanSerializer(models.Plan.objects.all(), many=True)
+        serializer = serializers.AbstractPlanSerializer(models.Plan.objects.all(),
+                                                        many=True, context={'request': request})
         return Response(serializer.data)
 
