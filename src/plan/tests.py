@@ -7,6 +7,7 @@ from django.conf import settings
 
 
 from accounts.models import User
+from plan.models import Spot
 
 
 class PlanTest(APITestCase):
@@ -28,14 +29,12 @@ class PlanTest(APITestCase):
             "spots": [
                 {
                     "name": "嵐山公園",
-                    "order": 0,
                     "lat": 35.012072,
                     "lon": 135.6791853,
                     "note": "いい公園",
                     "image": "".format(b64image.decode("utf-8"))
                 }, {
                     "name": "嵐山公園",
-                    "order": 1,
                     "lat": 35.012072,
                     "lon": 135.6791853,
                     "note": "いい公園",
@@ -49,5 +48,6 @@ class PlanTest(APITestCase):
         payload = jwt_payload_handler(self.user)
         token = jwt_encode_handler(payload)
         self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
+        self.assertEqual(0, Spot.objects.count())
         post_resp = self.client.post("/plan/plans/", data=post_data_set, format='json')
         self.assertEqual(201, post_resp.status_code)

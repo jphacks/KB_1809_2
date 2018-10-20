@@ -66,8 +66,8 @@ class PlanSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"spots": "This fields must have more than 2."})
         lat, lon = 0, 0
         plan = Plan.objects.create(user=user, **validated_data)
-        for spot_data in spots_data:
-            Spot.objects.create(plan=plan, **spot_data)
+        for i, spot_data in enumerate(spots_data):
+            Spot.objects.create(plan=plan, order=i, **spot_data)
             # 経度緯度を全て足し合わせる
             lat += spot_data['lat']
             lon += spot_data['lon']
