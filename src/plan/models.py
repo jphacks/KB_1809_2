@@ -2,6 +2,16 @@ from django.db import models
 from django.conf import settings
 
 
+class Location(models.Model):
+    """
+    地点データ
+    """
+    p_name = models.CharField("都道府県名", max_length=255)
+    p_code = models.IntegerField("都道府県コード")
+    m_name = models.CharField("市区町村名", max_length=255)
+    m_code = models.IntegerField("市区町村コード")
+
+
 class Plan(models.Model):
     """
     全体の工程を示すPlanのモデル
@@ -15,18 +25,9 @@ class Plan(models.Model):
     lat = models.FloatField("緯度")
     lon = models.FloatField("経度")
     note = models.TextField("投稿内容")
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="plans", verbose_name="位置情報",
+                                 null=True, blank=True)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
-
-
-class Location(models.Model):
-    """
-    地点データ
-    """
-    p_name = models.CharField("都道府県名", max_length=255)
-    p_code = models.IntegerField("都道府県コード")
-    m_name = models.CharField("市区町村名", max_length=255)
-    m_code = models.IntegerField("市区町村コード")
-    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="location", verbose_name="プラン")
 
 
 class Spot(models.Model):
