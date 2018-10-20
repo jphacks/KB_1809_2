@@ -8,7 +8,7 @@ router.register(r'spots', views.SpotViewSets, base_name='spots-list')
 router.register(r'reports', views.ReportViewSets, base_name='reports-list')
 router.register(r'comments', views.CommentViewSets, base_name='comments-list')
 router.register(r'favs', views.FavViewSets, base_name='favs-list')
-router.register(r'plans', views.PlanViewSets, base_name='plans')
+router.register(r'plans', views.PlanViewSets, basename='plans')
 
 app_name = 'plan'
 urlpatterns = router.urls
