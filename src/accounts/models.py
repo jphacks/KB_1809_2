@@ -47,7 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=64, unique=True, verbose_name='ユーザ名',
                                 help_text='小文字の英数字および数字のみ使用できます',
                                 validators=[username_validator])
-    email = models.EmailField(max_length=255, unique=True, default='')
+    email = models.EmailField(max_length=255, unique=False, default='')
     is_active = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

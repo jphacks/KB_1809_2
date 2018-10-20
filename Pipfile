@@ -12,6 +12,7 @@ django-rest-swagger = "*"
 python-dotenv = "*"
 gunicorn = "*"
 mysqlclient = "*"
+pillow = "*"
 requests = "*"
 
 [dev-packages]

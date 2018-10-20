@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'djoser',
     'accounts',
+    'plan',
 ]
 
 MIDDLEWARE = [
@@ -145,6 +146,7 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL': False,
     'SERIALIZERS': {
         'user': 'accounts.serializers.UserSerializer',
+        'user_create': 'accounts.serializers.CreateUserSerializer',
     },
 }
 
