@@ -14,6 +14,7 @@ gunicorn = "*"
 mysqlclient = "*"
 pillow = "*"
 requests = "*"
+django-extra-fields = "*"
 
 [dev-packages]
 
