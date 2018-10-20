@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 
 
 def get_image_path(instance, filename):
-    prefix = 'icon/'
+    prefix = 'icons/'
     name = str(uuid.uuid4()).replace('-', '')
     extension = os.path.splitext(filename)[-1]
     return prefix + name + extension
