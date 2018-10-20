@@ -5,6 +5,17 @@ from plan.models import Report, Plan
 from accounts.models import User
 
 from accounts.serializers import SimpleUserSerializer
+from .base import BaseListSerializer
+
+
+class ReportListSerializer(BaseListSerializer):
+    """
+    複数のReportを処理するSerializer
+    """
+
+    def create(self, validated_data):
+        reports = [Report(**item) for item in validated_data]
+        return Report.objects.bulk_create(reports)
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -19,6 +30,7 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = ("pk", "user", "plan", "image", "text")
+        list_serializer_class = ReportListSerializer
 
     def to_internal_value(self, data):
         user_id = data.get('user_id')

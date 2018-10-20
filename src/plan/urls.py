@@ -1,4 +1,3 @@
-from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 
@@ -9,8 +8,7 @@ router.register(r'spots', views.SpotViewSets, base_name='spots-list')
 router.register(r'reports', views.ReportViewSets, base_name='reports-list')
 router.register(r'comments', views.CommentViewSets, base_name='comments-list')
 router.register(r'favs', views.FavViewSets, base_name='favs-list')
+router.register(r'plans', views.PlanViewSets, base_name='plans')
 
 app_name = 'plan'
-urlpatterns = [
-    path('', include(router.urls))
-]
+urlpatterns = router.urls

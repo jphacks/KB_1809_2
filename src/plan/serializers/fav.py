@@ -4,6 +4,17 @@ from plan.models import Fav, Plan
 from accounts.models import User
 
 from accounts.serializers import SimpleUserSerializer
+from .base import BaseListSerializer
+
+
+class FavListSerializer(BaseListSerializer):
+    """
+    複数のFavを処理するSerializer
+    """
+
+    def create(self, validated_data):
+        favs = [Fav(**item) for item in validated_data]
+        return Fav.objects.bulk_create(favs)
 
 
 class FavSerializer(serializers.ModelSerializer):
@@ -17,6 +28,7 @@ class FavSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fav
         fields = ("pk", "user", "plan")
+        list_serializer_class = FavListSerializer
 
     def to_internal_value(self, data):
         user_id = data.get('user_id')
@@ -33,6 +45,4 @@ class FavSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.get(pk=validated_data.get('user_id'))
         plan = Plan.objects.get(pk=validated_data.get('plan_id'))
-
         return Fav.objects.create(user=user, plan=plan)
-

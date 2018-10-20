@@ -4,6 +4,17 @@ from plan.models import Comment, Plan
 from accounts.models import User
 
 from accounts.serializers import SimpleUserSerializer
+from .base import BaseListSerializer
+
+
+class CommentListSerializer(BaseListSerializer):
+    """
+    複数のコメントを処理するSerializer
+    """
+
+    def create(self, validated_data):
+        comments = [Comment(**item) for item in validated_data]
+        return Comment.objects.bulk_create(comments)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -17,6 +28,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ("pk", "user", "plan", "text")
+        list_serializer_class = CommentListSerializer
 
     def to_internal_value(self, data):
         user_id = data.get('user_id')

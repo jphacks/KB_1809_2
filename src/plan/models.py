@@ -43,6 +43,14 @@ class Plan(models.Model):
         """プランの名前を返却"""
         return self.name
 
+    def favorite_count(self):
+        """お気に入りされた数を返す"""
+        return self.favs.count()
+
+    def comment_count(self):
+        """コメントの数を返す"""
+        return self.comments.count()
+
 
 class Spot(models.Model):
     """
