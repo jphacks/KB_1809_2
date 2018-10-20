@@ -223,3 +223,6 @@ fabric.properties
 env_files/*.env
 env_files/data/*
 !env_files/data/.git-keep
+
+media/*
+!user.png
