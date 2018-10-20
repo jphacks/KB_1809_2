@@ -224,5 +224,7 @@ env_files/*.env
 env_files/data/*
 !env_files/data/.git-keep
 
-media/*
-!user.png
+src/media/*
+!src/media/icons
+src/media/icons/*
+!src/media/icons/user.png
