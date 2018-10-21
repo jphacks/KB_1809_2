@@ -165,7 +165,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DATETIME_FORMAT': "%Y/%m/%d %H:%M:%S"
+    'DATETIME_FORMAT': "%Y/%m/%d"
 }
 
 JWT_AUTH = {
