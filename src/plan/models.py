@@ -57,7 +57,8 @@ class Spot(models.Model):
     店や場所など点のデータ
     """
     name = models.CharField("スポット名", max_length=255, default="")
-    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="spots", verbose_name="プラン")
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="spots", verbose_name="プラン",
+                             null=True, blank=True)
     lat = models.FloatField("緯度")
     lon = models.FloatField("経度")
     note = models.TextField("ノート")
