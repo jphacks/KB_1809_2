@@ -15,6 +15,11 @@ class PlanTest(APITestCase):
     def setUp(self):
         self.user_data = {"username": "test_user", "password": "hogefugapiyo"}
         self.user = User.objects.create(**self.user_data, is_active=True)
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+        payload = jwt_payload_handler(self.user)
+        token = jwt_encode_handler(payload)
+        self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
 
     def test_post(self):
         self.assertEqual(1, User.objects.count())
@@ -32,22 +37,17 @@ class PlanTest(APITestCase):
                     "lat": 35.012072,
                     "lon": 135.6791853,
                     "note": "いい公園",
-                    "image": "".format(b64image.decode("utf-8"))
+                    "image": b64image
                 }, {
                     "name": "嵐山公園",
                     "lat": 35.012072,
                     "lon": 135.6791853,
                     "note": "いい公園",
-                    "image": "".format(b64image.decode("utf-8"))
+                    "image": b64image
                 }
             ]
         }
 
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-        payload = jwt_payload_handler(self.user)
-        token = jwt_encode_handler(payload)
-        self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
         self.assertEqual(0, Spot.objects.count())
         post_resp = self.client.post("/plan/plans/", data=post_data_set, format='json')
         self.assertEqual(201, post_resp.status_code)
