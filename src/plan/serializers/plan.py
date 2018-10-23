@@ -28,7 +28,7 @@ class AbstractPlanSerializer(serializers.ModelSerializer):
         all_spots = res['spots']
         if len(res['spots']) > 0:
             res['spots'] = [all_spots[0], all_spots[-1]]
-        res['is_favorited'] = instance.favs.filter(user=self.context['request'].user).exists()
+        res['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
         return res
 
 
@@ -94,5 +94,5 @@ class PlanSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(PlanSerializer, self).to_representation(instance)
-        data['is_favorited'] = instance.favs.filter(user=self.context['request'].user).exists()
+        data['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
         return data
