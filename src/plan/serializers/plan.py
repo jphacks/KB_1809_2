@@ -28,6 +28,7 @@ class AbstractPlanSerializer(serializers.ModelSerializer):
         all_spots = res['spots']
         if len(res['spots']) > 0:
             res['spots'] = [all_spots[0], all_spots[-1]]
+        res['is_favorited'] = instance.favs.filter(user=self.context['request'].user).exists()
         return res
 
 
