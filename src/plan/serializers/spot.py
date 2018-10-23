@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
-from plan.models import Spot
+from plan.models import Spot, Plan
 from .base import BaseListSerializer
 
 
@@ -13,10 +13,11 @@ class SpotListSerializer(BaseListSerializer):
     def create(self, validated_data):
         spots = list()
         for i, s in enumerate(validated_data):
-            new_spot = Spot(**s, order=i)
+            s['order'] = i
+            new_spot = self.child.create(s)
             spots.append(new_spot)
 
-        return Spot.objects.bulk_create(spots)
+        return spots
 
 
 class SpotSerializer(serializers.ModelSerializer):
@@ -25,8 +26,9 @@ class SpotSerializer(serializers.ModelSerializer):
     """
 
     image = Base64ImageField()
+    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all(), read_only=False)
 
     class Meta:
         model = Spot
-        fields = ("pk", "name", "order", "lat", "lon", "note", "image", "created_at")
+        fields = ("pk", "name", "order", "lat", "lon", "note", "plan", "image", "created_at")
         list_serializer_class = SpotListSerializer

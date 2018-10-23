@@ -10,6 +10,7 @@ branches:
   only:
     - master
     - dev
+    - award-dev
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_49f5ccf52a09_key -iv $encrypted_49f5ccf52a09_iv -in .travis/aquatan_studio.enc -out /tmp/aquatan_studio -d
@@ -29,7 +30,7 @@ deploy:
   skip_cleanup: true
   script: /bin/bash .travis/deploy.sh
   on:
-    branch: dev
+    branch: award-dev
 
 notifications:
   email: false

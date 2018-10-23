@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from plan.models import Plan, Spot, Location
+from plan.models import Plan
 from .spot import SpotSerializer
 from .fav import FavSerializer
 from .comment import CommentSerializer
@@ -28,6 +28,7 @@ class AbstractPlanSerializer(serializers.ModelSerializer):
         all_spots = res['spots']
         if len(res['spots']) > 0:
             res['spots'] = [all_spots[0], all_spots[-1]]
+        res['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
         return res
 
 
@@ -50,31 +51,48 @@ class PlanSerializer(serializers.ModelSerializer):
                   'favorite_count', 'comment_count')
 
     def to_internal_value(self, data):
-        res = {}
+        # res = {}
+        # spotの数で割った平均値でPlanのlocationを決める
+        spots_count = len(data['spots'])
+        data['lat'] = sum([d['lat'] for d in data['spots']]) / spots_count
+        data['lon'] = sum([d['lon'] for d in data['spots']]) / spots_count
+        return data
+
+    def validate(self, attrs):
+        """必須フィールドを含んでいるかのバリデーション"""
         fields = ('name', 'price', 'duration', 'note', 'spots')
         for key in fields:
-            if key not in data:
+            if key not in attrs:
                 raise serializers.ValidationError({key: "This field is required."})
-            res[key] = data[key]
-        return res
+        return attrs
+
+    def validate_spots(self, spots):
+        """spotsが2つ以上含まれているかのバリデーション"""
+        if len(spots) < 2:
+            raise serializers.ValidationError('This field must have more than two spots.')
+        return spots
 
     def create(self, validated_data):
         user = self.context['request'].user
         spots_data = validated_data.pop('spots')
-        spot_count = len(spots_data)
-        if spot_count < 2:
-            raise serializers.ValidationError({"spots": "This fields must have more than 2."})
-        lat, lon = 0, 0
+        lat = validated_data.pop('lat')
+        lon = validated_data.pop('lon')
+        # Planを作成してidを入手
         plan = Plan.objects.create(user=user, **validated_data)
-        for i, spot_data in enumerate(spots_data):
-            Spot.objects.create(plan=plan, order=i, **spot_data)
-            # 経度緯度を全て足し合わせる
-            lat += spot_data['lat']
-            lon += spot_data['lon']
-        # spotの数で割った平均値でPlanのlocationを決める
-        loc = convert_geo_to_location(lat / spot_count, lon / spot_count)
-        plan.location = Location.objects.create(
-            p_name=loc.p_name, p_code=loc.p_code, m_name=loc.m_name, m_code=loc.m_code
-        )
+        for i in range(len(spots_data)):
+            spots_data[i]['plan'] = plan.pk
+        ss = SpotSerializer(data=spots_data, many=True)
+        ss.is_valid(raise_exception=True)
+        ss.save()
+        # 位置情報を地域名に変換
+        loc = convert_geo_to_location(lat, lon)
+        location_serializer = LocationSerializer(data=loc.__dict__)
+        location_serializer.is_valid(raise_exception=True)
+        plan.location = location_serializer.save()
         plan.save()
         return plan
+
+    def to_representation(self, instance):
+        data = super(PlanSerializer, self).to_representation(instance)
+        data['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
+        return data
