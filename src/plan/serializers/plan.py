@@ -90,3 +90,8 @@ class PlanSerializer(serializers.ModelSerializer):
         plan.location = location_serializer.save()
         plan.save()
         return plan
+
+    def to_representation(self, instance):
+        data = super(PlanSerializer, self).to_representation(instance)
+        data['is_favorited'] = instance.favs.filter(user=self.context['request'].user).exists()
+        return data
