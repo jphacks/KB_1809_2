@@ -23,6 +23,7 @@ script:
   - docker build -t plannap-api .
   - docker images
   - docker tag plannap-api studioaquatan/plannap-api:latest
+  - bash .travis/test.sh
   - docker push studioaquatan/plannap-api:latest
 
 deploy:
