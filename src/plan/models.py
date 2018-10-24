@@ -19,6 +19,10 @@ class Location(models.Model):
     m_name = models.CharField("市区町村名", max_length=255)
     m_code = models.IntegerField("市区町村コード")
 
+    class Meta:
+        ordering = ('p_code', 'm_code')
+        unique_together = ('p_name', 'p_code', 'm_name', 'm_code')
+
     def __str__(self):
         """都道府県名+市区町村名を返却"""
         return self.p_name + " " + self.m_name
@@ -38,6 +42,9 @@ class Plan(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="plans", verbose_name="位置情報",
                                  null=True, blank=True)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at', 'name')
 
     def __str__(self):
         """プランの名前を返却"""
@@ -71,6 +78,7 @@ class Spot(models.Model):
         return self.name
 
     class Meta:
+        ordering = ('order',)
         unique_together = ("plan", "order")
 
 
@@ -83,6 +91,13 @@ class Fav(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="favs", verbose_name="プラン")
     created_at = models.DateTimeField("お気に入りした日時", auto_now_add=True)
 
+    class Meta:
+        ordering = ('-created_at',)
+        unique_together = ('user', 'plan')
+
+    def __str__(self):
+        return self.user.name + ' favs ' + self.plan.name
+
 
 class Comment(models.Model):
     """
@@ -93,6 +108,12 @@ class Comment(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="comments", verbose_name="プラン")
     text = models.TextField("テキスト")
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.user.name + ' commented on ' + self.plan.name
 
 
 class Report(models.Model):
@@ -105,3 +126,6 @@ class Report(models.Model):
     text = models.TextField("テキスト")
     image = models.ImageField("投稿画像", upload_to=get_image_path)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
