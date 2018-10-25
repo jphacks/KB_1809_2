@@ -131,4 +131,4 @@ class Report(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return str(self.user) + ' reported ' + str(self.plan)
+        return str(self.user) + ' reported about' + str(self.plan)
