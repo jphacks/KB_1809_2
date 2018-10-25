@@ -95,6 +95,9 @@ class Fav(models.Model):
         ordering = ('-created_at',)
         unique_together = ('user', 'plan')
 
+    def __str__(self):
+        return str(self.user) + ' favorited ' + str(self.plan)
+
 
 class Comment(models.Model):
     """
@@ -110,7 +113,7 @@ class Comment(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.user.name + ' commented on ' + self.plan.name
+        return str(self.user) + ' commented on ' + str(self.plan)
 
 
 class Report(models.Model):
@@ -126,3 +129,6 @@ class Report(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
+
+    def __str__(self):
+        return str(self.user) + ' reported about' + str(self.plan)
