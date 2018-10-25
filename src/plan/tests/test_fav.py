@@ -33,17 +33,15 @@ plan_data = {
     ]
 }
 
-post_data = {
-    "plan_id": 1
-}
-
 
 class FavTest(APITestCase):
 
     def setUp(self):
         self.user_data = {"username": "test_user", "password": "hogefugapiyo"}
         self.user = User.objects.create_user(**self.user_data, is_active=True)
-        self.post_data_set = post_data
+        self._set_credentials()
+        res = self.client.post("/plan/plans/", data=plan_data, format='json')
+        self.test_plan = res.data
 
     def _set_credentials(self):
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -53,8 +51,20 @@ class FavTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
 
     def test_post(self):
-        """POST /plan/favs/: いいね作成テスト"""
-        self._set_credentials()
-        _ = self.client.post("/plan/plans/", data=plan_data, format='json')
-        res = self.client.post("/plan/favs/", data=self.post_data_set, format="json")
+        """POST /plan/favs/ いいね作成テスト"""
+        res = self.client.post("/plan/favs/", data={
+            'plan_id': self.test_plan['pk']
+        }, format="json")
         self.assertEqual(201, res.status_code)
+        self.assertEqual(self.test_plan['pk'], res.data['plan_id'])
+        self.assertEqual("test_user", res.data['user']['username'])
+
+    def test_delete(self):
+        """DELETE /plan/favs/ いいね削除テスト"""
+        pass
+        res = self.client.post("/plan/favs/", data={
+            'plan_id': self.test_plan['pk']
+        }, format="json")
+        res = self.client.delete("/plan/favs/{}".format(res.data['pk']))
+        self.assertEqual(301, res.status_code)
+
