@@ -95,9 +95,6 @@ class Fav(models.Model):
         ordering = ('-created_at',)
         unique_together = ('user', 'plan')
 
-    def __str__(self):
-        return self.user.name + ' favs ' + self.plan.name
-
 
 class Comment(models.Model):
     """
