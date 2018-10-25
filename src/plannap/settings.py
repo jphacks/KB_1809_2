@@ -101,6 +101,7 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'PORT': int(os.getenv('DB_PORT', '3306')),
+        'ATOMIC_REQUESTS': True,
     }
 }
 
