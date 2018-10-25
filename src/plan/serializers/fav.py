@@ -4,6 +4,7 @@ from plan.models import Fav, Plan
 
 from accounts.serializers import SimpleUserSerializer
 from .base import BaseListSerializer
+from plan.models import Fav
 
 
 class FavListSerializer(BaseListSerializer):
@@ -36,14 +37,14 @@ class FavSerializer(serializers.ModelSerializer):
         return attrs
 
     def to_internal_value(self, data):
-        plan_id = data.get('plan_id')
-        if not plan_id:
-            raise serializers.ValidationError({'plan_id': 'This field is required.'})
         return {
-            'plan_id': plan_id,
+            'plan_id': data['plan_id'],
         }
 
     def create(self, validated_data):
         user = self.context['request'].user
         plan = Plan.objects.get(pk=validated_data.get('plan_id'))
-        return Fav.objects.create(user=user, plan=plan)
+        fav, is_created = Fav.objects.get_or_create(user=user, plan=plan)
+        if not is_created:
+            raise serializers.ValidationError({'plan_id': 'already favorite'})
+        return fav
