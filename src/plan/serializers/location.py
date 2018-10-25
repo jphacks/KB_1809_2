@@ -7,6 +7,7 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ("pk", "p_name", "p_code", "m_name", "m_code")
+        validators = []
 
     def to_internal_value(self, data):
         res = {}
@@ -19,5 +20,9 @@ class LocationSerializer(serializers.ModelSerializer):
         return res
 
     def create(self, validated_data):
-        loc, _ = Location.objects.get_or_create(**validated_data)
+        loc, _ = Location.objects.get_or_create(
+            p_code=validated_data.pop('p_code'),
+            m_code=validated_data.pop('m_code'),
+            defaults=validated_data,
+        )
         return loc
