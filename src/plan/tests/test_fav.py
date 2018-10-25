@@ -55,7 +55,6 @@ class FavTest(APITestCase):
     def test_post(self):
         """POST /plan/favs/: いいね作成テスト"""
         self._set_credentials()
-        res = self.client.post("/plan/plans/", data=plan_data, format='json')
-        print(res.status_code)
+        _ = self.client.post("/plan/plans/", data=plan_data, format='json')
         res = self.client.post("/plan/favs/", data=self.post_data_set, format="json")
         self.assertEqual(201, res.status_code)
