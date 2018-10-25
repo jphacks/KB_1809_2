@@ -23,11 +23,11 @@ class CommentSerializer(serializers.ModelSerializer):
     """
 
     user = SimpleUserSerializer()
-    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
+    plan_id = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     class Meta:
         model = Comment
-        fields = ("pk", "user", "plan", "text")
+        fields = ("pk", "user", "plan_id", "text")
         list_serializer_class = CommentListSerializer
 
     def to_internal_value(self, data):
