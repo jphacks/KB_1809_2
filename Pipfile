@@ -16,6 +16,7 @@ pillow = "*"
 requests = "*"
 django-extra-fields = "*"
 django-filter = "*"
+django-cleanup = "*"
 
 [dev-packages]
 

@@ -79,6 +79,6 @@ qa-manage:
 	docker-compose exec webapp pipenv run python manage.py $(ARGS)
 
 qa-clean: qa-stop
-	docker-compose rm
+	docker-compose rm -fv
 
 .PHONY: deps image rundb stopdb cleandb qa-start qa-stop qa-manage qa-clean ;
