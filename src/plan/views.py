@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django_filters import rest_framework as filters
 
-from . import models, serializers
+from . import models, serializers, permissions
 
 
 class LocationFilter(filters.FilterSet):
@@ -30,28 +30,28 @@ class SpotViewSets(viewsets.ModelViewSet):
     queryset = models.Spot.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.SpotSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
 
 class ReportViewSets(viewsets.ModelViewSet):
     queryset = models.Report.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.ReportSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
 
 class FavViewSets(viewsets.ModelViewSet):
     queryset = models.Fav.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
 
 class CommentViewSets(viewsets.ModelViewSet):
     queryset = models.Comment.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.CommentSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
 
 class PlanLocationFilter(filters.FilterSet):
@@ -71,7 +71,7 @@ class PlanViewSets(viewsets.ModelViewSet):
     queryset = models.Plan.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.PlanSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     filter_class = PlanLocationFilter
 
     def list(self, request, *args, **kwargs):
