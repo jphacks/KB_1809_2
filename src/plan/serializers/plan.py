@@ -82,7 +82,7 @@ class PlanSerializer(serializers.ModelSerializer):
         # Planを作成してidを入手
         plan = Plan.objects.create(user=user, **validated_data)
         for i in range(len(spots_data)):
-            spots_data[i]['plan'] = plan.pk
+            spots_data[i]['plan_id'] = plan.pk
         ss = SpotSerializer(data=spots_data, many=True)
         ss.is_valid(raise_exception=True)
         ss.save()

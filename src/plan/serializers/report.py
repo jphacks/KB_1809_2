@@ -25,11 +25,11 @@ class ReportSerializer(serializers.ModelSerializer):
 
     image = Base64ImageField()
     user = SimpleUserSerializer()
-    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
+    plan_id = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     class Meta:
         model = Report
-        fields = ("pk", "user", "plan", "image", "text")
+        fields = ("pk", "user", "plan_id", "image", "text")
         list_serializer_class = ReportListSerializer
 
     def to_internal_value(self, data):

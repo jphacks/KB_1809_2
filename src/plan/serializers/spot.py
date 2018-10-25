@@ -26,9 +26,13 @@ class SpotSerializer(serializers.ModelSerializer):
     """
 
     image = Base64ImageField()
-    plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all(), read_only=False)
+    plan_id = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all(), read_only=False)
 
     class Meta:
         model = Spot
-        fields = ("pk", "name", "order", "lat", "lon", "note", "plan", "image", "created_at")
+        fields = ("pk", "name", "order", "lat", "lon", "note", "plan_id", "image", "created_at")
         list_serializer_class = SpotListSerializer
+
+    def create(self, validated_data):
+        plan = validated_data.pop('plan_id')
+        return Spot.objects.create(**validated_data, plan=plan)
