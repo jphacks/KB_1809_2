@@ -34,4 +34,4 @@ RUN apk add --no-cache --virtual=build_dep \
     apk del --purge build_dep && \
     rm -rf /var/cache/apk/*
 
-CMD ["pipenv", "run", "gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "--access-logfile", "-", "-c", "plannap/gunicorn.conf.py", "plannap.wsgi"]
+CMD ["pipenv", "run", "gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "--access-logfile", "-", "plannap.wsgi"]
