@@ -54,6 +54,8 @@ class PlanSerializer(serializers.ModelSerializer):
         # res = {}
         # spotの数で割った平均値でPlanのlocationを決める
         spots_count = len(data['spots'])
+        if spots_count < 2:
+            raise serializers.ValidationError({'spots': 'This field must have more than two spots.'})
         data['lat'] = sum([d['lat'] for d in data['spots']]) / spots_count
         data['lon'] = sum([d['lon'] for d in data['spots']]) / spots_count
         return data
