@@ -81,4 +81,10 @@ qa-manage:
 qa-clean: qa-stop
 	docker-compose rm -fv
 
+prod-start:
+	docker-compose -f docker-compose.prod.yml up -d --build
+
+prod-manage:
+	docker-compose -f docker-compose.prod.yml exec webapp pipenv run python manage.py $(ARGS)
+
 .PHONY: deps image rundb stopdb cleandb qa-start qa-stop qa-manage qa-clean ;
