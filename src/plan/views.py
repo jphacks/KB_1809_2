@@ -52,16 +52,12 @@ class FavViewSets(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
     def list(self, request, plan_pk=None, **kwargs):
-        if not plan_pk:
-            return super(FavViewSets, self).list(request, **kwargs)
         user = request.user
         favs = self.queryset.filter(plan_id=plan_pk, user=user).all()
         serializer = self.get_serializer(favs, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
-        if not plan_pk:
-            return super(FavViewSets, self).retrieve(request, pk, **kwargs)
         fav = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
         serializer = self.get_serializer(fav)
         return Response(serializer.data)
@@ -78,8 +74,6 @@ class FavViewSets(mixins.ListModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, plan_pk=None, **kwargs):
-        if not plan_pk:
-            return super(FavViewSets, self).create(request, **kwargs)
         serializer = self.get_serializer(data={'plan_id': plan_pk})
         serializer.is_valid()
         self.perform_create(serializer)
