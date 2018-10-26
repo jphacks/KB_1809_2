@@ -1,8 +1,10 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 
 from . import models, serializers, permissions
@@ -45,6 +47,41 @@ class FavViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+
+    def list(self, request, plan_pk=None, **kwargs):
+        if not plan_pk:
+            return super(FavViewSets, self).list(request, **kwargs)
+        user = request.user
+        favs = self.queryset.filter(plan_id=plan_pk, user=user).all()
+        serializer = self.get_serializer(favs, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
+        if not plan_pk:
+            return super(FavViewSets, self).retrieve(request, pk, **kwargs)
+        fav = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
+        serializer = self.get_serializer(fav)
+        return Response(serializer.data)
+
+    @action(methods=['post', 'delete'], detail=False, url_path='me')
+    def me(self, request, plan_pk=None, **kwargs):
+        if request.method == 'POST':
+            return self.create(request, plan_pk=plan_pk, **kwargs)
+        try:
+            fav = self.queryset.filter(plan_id=plan_pk, user=request.user).get()
+        except models.Fav.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        self.perform_destroy(fav)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def create(self, request, plan_pk=None, **kwargs):
+        if not plan_pk:
+            return super(FavViewSets, self).create(request, **kwargs)
+        serializer = self.get_serializer(data={'plan_id': plan_pk})
+        serializer.is_valid()
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CommentViewSets(viewsets.ModelViewSet):
