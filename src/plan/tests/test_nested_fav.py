@@ -87,12 +87,17 @@ class FavTest(APITestCase):
     def test_destroy(self):
         """DELETE /plan/plans/<id>/favs/: いいね削除テスト"""
         plan_res = self.client.post("/plan/plans/", data=plan_data, format='json')
-        for path in ['/plan/plans/{}/favs/me/']:
-            fav = Fav.objects.create(user=self.user, plan_id=plan_res.data['pk'])
-            res = self.client.delete(path.format(plan_res.data['pk']))
-            self.assertEqual(204, res.status_code)
-            with self.assertRaises(Fav.DoesNotExist):
-                Fav.objects.get(pk=fav.pk)
+        fav = Fav.objects.create(user=self.user, plan_id=plan_res.data['pk'])
+        res = self.client.delete('/plan/plans/{}/favs/me/'.format(plan_res.data['pk']))
+        self.assertEqual(204, res.status_code)
+        with self.assertRaises(Fav.DoesNotExist):
+            Fav.objects.get(pk=fav.pk)
+
+    def test_destroy_fail(self):
+        """DELETE /plan/plans/<id>/favs/: 存在しないいいねの削除テスト"""
+        plan_res = self.client.post("/plan/plans/", data=plan_data, format='json')
+        res = self.client.delete('/plan/plans/{}/favs/me/'.format(plan_res.data['pk']))
+        self.assertEqual(404, res.status_code)
 
     def test_get_detail(self):
         """GET /plan/plans/<id>/favs/<id>/: いいねの詳細取得テスト"""
