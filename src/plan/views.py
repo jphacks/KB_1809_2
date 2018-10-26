@@ -21,6 +21,13 @@ class LocationFilter(filters.FilterSet):
 
 
 class LocationViewSets(viewsets.ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Locationの詳細を取得
+
+    list:
+    Locationの一覧を取得
+    """
     queryset = models.Location.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.LocationSerializer
@@ -46,6 +53,21 @@ class FavViewSets(mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
+    """
+    ふぁぼのエンドポイント
+
+    retrieve:
+        ふぁぼの詳細を取得
+
+    list:
+        指定したPlanのふぁぼ一覧を取得
+
+    create:
+        指定したPlanをふぁぼする
+
+    destroy:
+        指定したPlanのふぁぼを解除する
+    """
     queryset = models.Fav.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
@@ -64,6 +86,7 @@ class FavViewSets(mixins.ListModelMixin,
 
     @action(methods=['post', 'delete'], detail=False, url_path='me')
     def me(self, request, plan_pk=None, **kwargs):
+        """POSTでふぁぼ，DELETEであんふぁぼする"""
         if request.method == 'POST':
             return self.create(request, plan_pk=plan_pk, **kwargs)
         try:
@@ -102,6 +125,19 @@ class PlanLocationFilter(filters.FilterSet):
 
 
 class PlanViewSets(viewsets.ModelViewSet):
+    """
+    retrieve:
+        Planの詳細を取得する
+
+    create:
+        Planを作成する．`spots`で指定した複数のSpotの緯度経度からそのPlanの緯度経度を推定する．
+
+    list:
+        Planの一覧を表示する．情報を削減したSerializerを用い，commentsやreportsなどは返さない．
+
+    destroy:
+        Planを削除する
+    """
     queryset = models.Plan.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.PlanSerializer
@@ -109,7 +145,6 @@ class PlanViewSets(viewsets.ModelViewSet):
     filter_class = PlanLocationFilter
 
     def list(self, request, *args, **kwargs):
-        """一覧表示の場合は情報を削減したSerializerを使用する"""
         serializer = serializers.AbstractPlanSerializer(self.filter_queryset(models.Plan.objects.all()),
                                                         many=True, context={'request': request})
         return Response(serializer.data)
