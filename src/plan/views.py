@@ -20,7 +20,7 @@ class LocationFilter(filters.FilterSet):
         fields = ['p_name', 'm_name']
 
 
-class LocationViewSets(viewsets.ModelViewSet):
+class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     queryset = models.Location.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.LocationSerializer
