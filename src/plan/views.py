@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
@@ -42,7 +42,10 @@ class ReportViewSets(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
 
-class FavViewSets(viewsets.ModelViewSet):
+class FavViewSets(mixins.ListModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  viewsets.GenericViewSet):
     queryset = models.Fav.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
@@ -71,7 +74,7 @@ class FavViewSets(viewsets.ModelViewSet):
             fav = self.queryset.filter(plan_id=plan_pk, user=request.user).get()
         except models.Fav.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        self.perform_destroy(fav)
+        fav.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, plan_pk=None, **kwargs):
