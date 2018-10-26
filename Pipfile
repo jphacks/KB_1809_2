@@ -17,6 +17,7 @@ requests = "*"
 django-extra-fields = "*"
 django-filter = "*"
 django-cleanup = "*"
+drf-nested-routers = "*"
 
 [dev-packages]
 
