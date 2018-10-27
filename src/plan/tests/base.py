@@ -4,7 +4,7 @@ from rest_framework_jwt.settings import api_settings
 
 from accounts.models import User
 from plan.models import Comment, Plan, Fav
-from .data import plan_data, comment_data, user_data
+from .data import plan_data, comment_data, user_data, report_data
 
 
 class BaseTestCase(APITestCase):
@@ -20,11 +20,15 @@ class BaseTestCase(APITestCase):
     # Comment
     comment_path = plan_detail_path + 'comments/'
     comment_detail_path = comment_path + '{}/'
+    # Report
+    report_path = plan_detail_path + 'reports/'
+    report_detail_path = report_path + '{}/'
 
     def setUp(self):
         self.user_data = copy.deepcopy(user_data)
         self.plan_data = copy.deepcopy(plan_data)
         self.comment_data = copy.deepcopy(comment_data)
+        self.report_data = copy.deepcopy(report_data)
         self.user = User.objects.create_user(**self.user_data[0], is_active=True)
         self._set_credentials()
         self.plan_res = self.client.post("/plan/plans/", data=self.plan_data, format='json')

@@ -49,4 +49,15 @@ user_data = [
     }
 ]
 
+report_data = [
+    {
+        "text": "This is a test report.",
+        "image": b64image
+    },
+    {
+        "text": "This is a test report 2.",
+        "image": b64image
+    }
+]
+
 
