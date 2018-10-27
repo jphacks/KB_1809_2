@@ -97,16 +97,16 @@ class FavViewSets(mixins.ListModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, plan_pk=None, **kwargs):
-        serializer = self.get_serializer(data={'plan_id': plan_pk})
-        serializer.is_valid()
+        serializer = self.get_serializer(data={'plan_id': int(plan_pk)})
+        serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CommentViewSets(mixins.ListModelMixin,
-                      mixins.CreateModelMixin,
                       mixins.RetrieveModelMixin,
+                      mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
     """
@@ -145,9 +145,9 @@ class CommentViewSets(mixins.ListModelMixin,
 
     def create(self, request, plan_pk=None, **kwargs):
         data = request.data
-        data['plan_id'] = plan_pk
+        data['plan_id'] = int(plan_pk)
         serializer = self.get_serializer(data=data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
