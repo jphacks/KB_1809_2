@@ -6,6 +6,7 @@ from rest_framework_jwt.settings import api_settings
 from django.conf import settings
 
 from accounts.models import User
+from plan.models import Report
 
 img_file = os.path.join(settings.MEDIA_ROOT, "icons", "user.png")
 with open(img_file, 'rb') as fp:
@@ -59,3 +60,21 @@ class ReportTest(APITestCase):
         self.assertEqual(201, res.status_code)
         self.assertEqual("test report", res.data['text'])
         self.assertEqual("test_user", res.data['user']['username'])
+
+    def test_multi_post(self):
+        """POST /plan/reports/ レポートを重複して作成するテスト"""
+        res = self.client.post("/plan/reports/", data={
+            "plan_id": self.test_plan['pk'],
+            "text": "test report",
+            "image": b64image
+        }, format="json")
+        self.assertEqual(201, res.status_code)
+        res = self.client.post("/plan/reports/", data={
+            "plan_id": self.test_plan['pk'],
+            "text": "test report",
+            "image": b64image
+        }, format="json")
+        self.assertEqual(201, res.status_code)
+
+        reports = Report.objects.filter(user=self.user)
+        self.assertEqual(2, len(reports))
