@@ -35,6 +35,7 @@ class BaseTestCase(APITestCase):
         Comment.objects.all().delete()
         Fav.objects.all().delete()
         Plan.objects.all().delete()
+        User.objects.all().delete()
 
     def _set_credentials(self, user=None):
         if not user:

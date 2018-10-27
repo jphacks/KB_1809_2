@@ -1,37 +1,15 @@
-import copy
-from rest_framework.test import APITestCase
-from rest_framework_jwt.settings import api_settings
-
 from accounts.models import User
-from plan.models import Plan
-from .data import plan_data
+from .base import BaseTestCase
 
 
-class PermissionTest(APITestCase):
-
-    def setUp(self):
-        self.user_data = {"username": "test_user", "password": "hogefugapiyo"}
-        self.post_data_set = copy.deepcopy(plan_data)
-        self.user1 = User.objects.create(**self.user_data, is_active=True)
-        self.user2 = User.objects.create(username='hoge', password='fugafuga', is_active=True)
-
-    def tearDown(self):
-        super(PermissionTest, self).tearDown()
-        User.objects.all().delete()
-        Plan.objects.all().delete()
-
-    def _set_credentials(self, user):
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-        payload = jwt_payload_handler(user)
-        token = jwt_encode_handler(payload)
-        self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
+class PermissionTest(BaseTestCase):
 
     def test_plan_permission(self):
         """POST /plan/plans/<id>/: 他人のPlanは更新不可であるかどうかのテスト"""
-        self._set_credentials(self.user1)
-        res = self.client.post('/plan/plans/', data=self.post_data_set, format='json')
+        self._set_credentials(self.user)
+        res = self.client.post(self.plan_path, data=self.plan_data, format='json')
         self.assertEqual(201, res.status_code)
-        self._set_credentials(self.user2)
-        res = self.client.patch('/plan/plans/{}/'.format(res.data['pk']), data=self.post_data_set, format='json')
+        user2 = User.objects.create(**self.user_data[1], is_active=True)
+        self._set_credentials(user2)
+        res = self.client.patch(self.plan_detail_path.format(res.data['pk']), data=self.plan_data, format='json')
         self.assertEqual(403, res.status_code)
