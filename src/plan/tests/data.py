@@ -29,4 +29,24 @@ plan_data = {
     ]
 }
 
+comment_data = [
+    {
+        'text': 'This is a first comment message.'
+    },
+    {
+        'text': 'This is a second comment message'
+    }
+]
+
+user_data = [
+    {
+        "username": "test_user",
+        "password": "hogefugapiyo"
+    },
+    {
+        "username": "second_user",
+        "password": "hogefugapiyo"
+    }
+]
+
 
