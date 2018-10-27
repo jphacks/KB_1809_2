@@ -6,7 +6,7 @@ from rest_framework_jwt.settings import api_settings
 from django.conf import settings
 
 from accounts.models import User
-from plan.models import Report
+from plan.models import Report, Plan
 
 img_file = os.path.join(settings.MEDIA_ROOT, "icons", "user.png")
 with open(img_file, 'rb') as fp:
@@ -43,6 +43,11 @@ class ReportTest(APITestCase):
         res = self.client.post("/plan/plans/", data=plan_data, format='json')
         self.test_plan = res.data
 
+    def tearDown(self):
+        super(ReportTest, self).tearDown()
+        Plan.objects.all().delete()
+        Report.objects.all().delete()
+
     def _set_credentials(self):
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -78,3 +83,17 @@ class ReportTest(APITestCase):
 
         reports = Report.objects.filter(user=self.user)
         self.assertEqual(2, len(reports))
+
+    def test_get(self):
+        """GET /plan/plans/<plan_id>/reports/ レポートを取得するテスト"""
+        Report.objects.create(user=self.user, plan_id=self.test_plan['pk'])
+        res = self.client.get("/plan/plans/{}/reports/".format(self.test_plan['pk']), format="json")
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(1, len(res.data))
+
+    def test_get_detail(self):
+        """GET /plan/plans/<plan_id>/reports/<report_id>/ レポート詳細を取得するテスト"""
+        rep = Report.objects.create(user=self.user, plan_id=self.test_plan['pk'])
+        res = self.client.get("/plan/plans/{}/reports/{}/".format(self.test_plan['pk'], rep.pk), format="json")
+        self.assertEqual(200, res.status_code)
+        self.assertEqual("test_user", res.data['user']['username'])
