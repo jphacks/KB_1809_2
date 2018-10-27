@@ -8,7 +8,7 @@ from django.conf import settings
 
 
 from accounts.models import User
-from plan.models import Plan, Fav
+from plan.models import Plan
 
 img_file = os.path.join(settings.MEDIA_ROOT, "icons", "user.png")
 with open(img_file, 'rb') as fp:
@@ -48,7 +48,6 @@ class PermissionTest(APITestCase):
         super(PermissionTest, self).tearDown()
         User.objects.all().delete()
         Plan.objects.all().delete()
-        Fav.objects.all().delete()
 
     def _set_credentials(self, user):
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -64,16 +63,4 @@ class PermissionTest(APITestCase):
         self.assertEqual(201, res.status_code)
         self._set_credentials(self.user2)
         res = self.client.patch('/plan/plans/{}/'.format(res.data['pk']), data=self.post_data_set, format='json')
-        self.assertEqual(403, res.status_code)
-
-    def test_fav_permission(self):
-        """POST /plan/favs/<id>/: 他人のFavは更新不可であるかどうかのテスト"""
-        self._set_credentials(self.user1)
-        res = self.client.post('/plan/plans/', data=self.post_data_set, format='json')
-        self.assertEqual(201, res.status_code)
-        self._set_credentials(self.user2)
-        res = self.client.post('/plan/favs/', data={"plan_id": res.data['pk']}, format='json')
-        self.assertEqual(201, res.status_code)
-        self._set_credentials(self.user1)
-        res = self.client.patch('/plan/favs/{}/'.format(res.data['pk']), data={"plan_id": 3}, format='json')
         self.assertEqual(403, res.status_code)
