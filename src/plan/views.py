@@ -74,8 +74,7 @@ class FavViewSets(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
 
     def list(self, request, plan_pk=None, **kwargs):
-        user = request.user
-        favs = self.queryset.filter(plan_id=plan_pk, user=user).all()
+        favs = self.queryset.filter(plan_id=plan_pk).all()
         serializer = self.get_serializer(favs, many=True)
         return Response(serializer.data)
 
