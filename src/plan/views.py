@@ -196,7 +196,7 @@ class PlanViewSets(viewsets.ModelViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = serializers.AbstractPlanSerializer(queryset, many=True, context={'request': request})
+            serializer = serializers.AbstractPlanSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(serializer.data)
 
         serializer = serializers.AbstractPlanSerializer(queryset, many=True, context={'request': request})
