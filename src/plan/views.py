@@ -78,9 +78,13 @@ class FavViewSets(mixins.ListModelMixin,
     pagination_class = paginations.VersioningPagination
 
     def list(self, request, plan_pk=None, **kwargs):
-        favs = self.queryset.filter(plan_id=plan_pk).all()
-        serializer = self.get_serializer(favs, many=True)
-        return self.get_paginated_response(serializer.data)
+        queryset = self.queryset.filter(plan_id=plan_pk).all()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
         fav = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
@@ -133,8 +137,12 @@ class CommentViewSets(mixins.ListModelMixin,
 
     def list(self, request, plan_pk=None, **kwargs):
         queryset = self.queryset.filter(plan_id=plan_pk).all()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
-        return self.get_paginated_response(serializer.data)
+        return Response(serializer.data)
 
     def destroy(self, request, pk=None, plan_pk=None, **kwargs):
         user = request.user
