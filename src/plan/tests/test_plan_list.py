@@ -1,39 +1,10 @@
-import os
-import base64
 import copy
 from rest_framework.test import APITestCase
 from rest_framework_jwt.settings import api_settings
 
-from django.conf import settings
-
-
 from accounts.models import User
 from plan.models import Plan
-
-img_file = os.path.join(settings.MEDIA_ROOT, "icons", "user.png")
-with open(img_file, 'rb') as fp:
-    b64image = base64.encodebytes(fp.read())
-plan_data = {
-    "name": "嵐山コース",
-    "price": 10000,
-    "duration": 360,
-    "note": "嵐山でぶらぶらしながら色んなお店を回るコースです",
-    "spots": [
-        {
-            "name": "嵐山公園",
-            "lat": 35.012072,
-            "lon": 135.6791853,
-            "note": "いい公園",
-            "image": b64image
-        }, {
-            "name": "嵐山公園",
-            "lat": 35.012072,
-            "lon": 135.6791853,
-            "note": "いい公園",
-            "image": b64image
-        }
-    ]
-}
+from .data import plan_data
 
 
 class PlanListTest(APITestCase):
@@ -41,7 +12,7 @@ class PlanListTest(APITestCase):
     def setUp(self):
         self.user_data = {"username": "test_user", "password": "hogefugapiyo"}
         self.user = User.objects.create_user(**self.user_data, is_active=True)
-        self.post_data_set = plan_data
+        self.post_data_set = copy.deepcopy(plan_data)
 
     def tearDown(self):
         super(PlanListTest, self).tearDown()
