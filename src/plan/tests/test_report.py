@@ -51,8 +51,8 @@ class ReportTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
 
     def test_post(self):
-        """POST /plan/reports/ レポート作成テスト"""
-        res = self.client.post("/plan/reports/", data={
+        """POST /plan/plans/<plan_id>/reports/ レポート作成テスト"""
+        res = self.client.post("/plan/plans/{}/reports/".format(self.test_plan['pk']), data={
             "plan_id": self.test_plan['pk'],
             "text": "test report",
             "image": b64image
@@ -62,14 +62,14 @@ class ReportTest(APITestCase):
         self.assertEqual("test_user", res.data['user']['username'])
 
     def test_multi_post(self):
-        """POST /plan/reports/ レポートを重複して作成するテスト"""
-        res = self.client.post("/plan/reports/", data={
+        """POST /plan/plans/<plan_id>/reports/ レポートを重複して作成するテスト"""
+        res = self.client.post("/plan/plans/{}/reports/".format(self.test_plan['pk']), data={
             "plan_id": self.test_plan['pk'],
             "text": "test report",
             "image": b64image
         }, format="json")
         self.assertEqual(201, res.status_code)
-        res = self.client.post("/plan/reports/", data={
+        res = self.client.post("/plan/plans/{}/reports/".format(self.test_plan['pk']), data={
             "plan_id": self.test_plan['pk'],
             "text": "test report",
             "image": b64image
