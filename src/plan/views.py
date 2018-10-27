@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 
-from . import models, serializers, permissions
+from . import models, serializers, permissions, paginations
 
 
 class LocationFilter(filters.FilterSet):
@@ -33,6 +33,7 @@ class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
     filter_class = LocationFilter
+    pagination_class = paginations.VersioningPagination
 
 
 class SpotViewSets(viewsets.ModelViewSet):
@@ -40,6 +41,7 @@ class SpotViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.SpotSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+    pagination_class = paginations.VersioningPagination
 
 
 class ReportViewSets(viewsets.ModelViewSet):
@@ -47,6 +49,7 @@ class ReportViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.ReportSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+    pagination_class = paginations.VersioningPagination
 
 
 class FavViewSets(mixins.ListModelMixin,
@@ -72,11 +75,12 @@ class FavViewSets(mixins.ListModelMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+    pagination_class = paginations.VersioningPagination
 
     def list(self, request, plan_pk=None, **kwargs):
         favs = self.queryset.filter(plan_id=plan_pk).all()
         serializer = self.get_serializer(favs, many=True)
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
         fav = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
@@ -125,11 +129,12 @@ class CommentViewSets(mixins.ListModelMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+    pagination_class = paginations.VersioningPagination
 
     def list(self, request, plan_pk=None, **kwargs):
         queryset = self.queryset.filter(plan_id=plan_pk).all()
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     def destroy(self, request, pk=None, plan_pk=None, **kwargs):
         user = request.user
@@ -184,8 +189,15 @@ class PlanViewSets(viewsets.ModelViewSet):
     serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     filter_class = PlanLocationFilter
+    pagination_class = paginations.VersioningPagination
 
     def list(self, request, *args, **kwargs):
-        serializer = serializers.AbstractPlanSerializer(self.filter_queryset(models.Plan.objects.all()),
-                                                        many=True, context={'request': request})
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = serializers.AbstractPlanSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializers.AbstractPlanSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)

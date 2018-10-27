@@ -9,7 +9,7 @@ from .data import plan_data, comment_data, user_data, report_data
 
 class BaseTestCase(APITestCase):
 
-    path_prefix = '/plan/'
+    path_prefix = '/api/v1/'
     # Plan
     plan_path = path_prefix + 'plans/'
     plan_detail_path = plan_path + '{}/'
@@ -31,7 +31,7 @@ class BaseTestCase(APITestCase):
         self.report_data = copy.deepcopy(report_data)
         self.user = User.objects.create_user(**self.user_data[0], is_active=True)
         self._set_credentials()
-        self.plan_res = self.client.post("/plan/plans/", data=self.plan_data, format='json')
+        self.plan_res = self.client.post(self.plan_path, data=self.plan_data, format='json')
         self.plan_id = self.plan_res.data['pk']
 
     def tearDown(self):

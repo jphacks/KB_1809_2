@@ -167,7 +167,10 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DATETIME_FORMAT': "%Y/%m/%d"
+    'DATETIME_FORMAT': "%Y/%m/%d",
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_PAGINATION_CLASS': 'plan.paginations.VersioningPagination',
+    'PAGE_SIZE': 10
 }
 
 JWT_AUTH = {

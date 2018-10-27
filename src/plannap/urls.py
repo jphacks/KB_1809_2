@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_swagger.views import get_swagger_view
 
 from accounts import urls as accounts_urls
@@ -28,7 +28,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
     path('swagger/', get_swagger_view(title='Plannap API Document')),
     path('accounts/', include(accounts_urls)),
-    path('plan/', include(plan_urls)),
+    re_path(r'api/(?P<version>(v1|v2))/', include(plan_urls)),
 ]
 
 if settings.DEBUG:
