@@ -53,6 +53,7 @@ sleep 20
 
 make qa-manage ARGS=migrate
 make qa-manage ARGS=test
+exit_status=$?
 
 rm -rf ${ENV_DIR}/data
 if [ -d ${ENV_DIR}/data_bk ]; then
@@ -65,3 +66,5 @@ restoreEnv db.env
 restoreEnv static.env
 
 make qa-clean
+
+exit ${exit_status}
