@@ -2,7 +2,6 @@ from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
 from plan.models import Report, Plan
-from accounts.models import User
 
 from accounts.serializers import SimpleUserSerializer
 from .base import BaseListSerializer
@@ -29,7 +28,7 @@ class ReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ("pk", "user", "plan_id", "image", "text")
+        fields = ("pk", "user", "plan_id", "image", "text", "created_at")
         list_serializer_class = ReportListSerializer
 
     def validate(self, attrs):

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from plan.models import Comment, Plan
-from accounts.models import User
 
 from accounts.serializers import SimpleUserSerializer
 from .base import BaseListSerializer
@@ -27,7 +26,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ("pk", "user", "plan_id", "text")
+        fields = ("pk", "user", "plan_id", "text", "created_at")
         list_serializer_class = CommentListSerializer
 
     def to_internal_value(self, data):
