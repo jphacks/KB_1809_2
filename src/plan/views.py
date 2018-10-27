@@ -104,11 +104,53 @@ class FavViewSets(mixins.ListModelMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class CommentViewSets(viewsets.ModelViewSet):
+class CommentViewSets(mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
+    """
+    retrieve:
+        コメントの詳細を取得する
+
+    list:
+        特定のPlanに紐付くコメントの一覧を取得する
+
+    create:
+        特定のPlanに対してコメントを投稿する
+
+    destroy:
+        指定したコメントを削除する
+    """
     queryset = models.Comment.objects.all()
     parser_classes = (JSONParser,)
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
+
+    def list(self, request, plan_pk=None, **kwargs):
+        queryset = self.queryset.filter(plan_id=plan_pk).all()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def destroy(self, request, pk=None, plan_pk=None, **kwargs):
+        user = request.user
+        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk, user=user)
+        self.perform_destroy(comment)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
+        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
+        serializer = self.get_serializer(comment)
+        return Response(serializer.data)
+
+    def create(self, request, plan_pk=None, **kwargs):
+        data = request.data
+        data['plan_id'] = plan_pk
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid()
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class PlanLocationFilter(filters.FilterSet):
