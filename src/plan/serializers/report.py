@@ -41,9 +41,7 @@ class ReportSerializer(serializers.ModelSerializer):
         return attrs
 
     def to_internal_value(self, data):
-        username = self.context['request'].user
-        user = User.objects.get(username=username)
-        data['user'] = user
+        data['user'] = self.context['request'].user
         data['plan'] = Plan.objects.get(pk=data.get('plan_id'))
         data['image'] = Base64ImageField().to_internal_value(data.get('image'))
         return data
