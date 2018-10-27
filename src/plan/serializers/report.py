@@ -24,7 +24,7 @@ class ReportSerializer(serializers.ModelSerializer):
     """
 
     image = Base64ImageField()
-    user = SimpleUserSerializer()
+    user = SimpleUserSerializer(read_only=True)
     plan_id = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
 
     class Meta:
@@ -32,31 +32,18 @@ class ReportSerializer(serializers.ModelSerializer):
         fields = ("pk", "user", "plan_id", "image", "text")
         list_serializer_class = ReportListSerializer
 
+    def validate(self, attrs):
+        """必要フィールドを含んでいるかのバリデーション"""
+        field = ('plan_id', 'image', 'text')
+        for key in field:
+            if key not in attrs:
+                raise serializers.ValidationError({key: "This field is required."})
+        return attrs
+
     def to_internal_value(self, data):
-        user_id = data.get('user_id')
-        plan_id = data.get('plan_id')
-        image = data.get('image')
-        text = data.get('text')
-        if not user_id:
-            raise serializers.ValidationError({'user_id': 'This field is required.'})
-        if not plan_id:
-            raise serializers.ValidationError({'plan_id': 'This field is required.'})
-        if not image:
-            raise serializers.ValidationError({'image': 'This field is required.'})
-        if not text:
-            raise serializers.ValidationError({'text': 'This field is required.'})
-
-        return {
-            'user_id': user_id,
-            'plan_id': plan_id,
-            'image': image,
-            'text': text,
-        }
-
-    def create(self, validated_data):
-        user = User.objects.get(pk=validated_data.get('user_id'))
-        plan = Plan.objects.get(pk=validated_data.get('plan_id'))
-        image = validated_data.get('image')
-        text = validated_data.get('text')
-
-        return Report.objects.create(user=user, plan=plan, image=image, text=text)
+        data['user'] = self.context['request'].user
+        data['plan'] = Plan.objects.get(pk=data.get('plan_id'))
+        b64image = data.pop('image')
+        if len(b64image) != 0:
+            data['image'] = Base64ImageField().to_internal_value(b64image)
+        return data

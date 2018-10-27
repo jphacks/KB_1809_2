@@ -120,7 +120,7 @@ class PlanLocationFilter(filters.FilterSet):
 
     def filter_p_and_m_name(self, queryset, name, value):
         return queryset.filter(
-            Q(location__p_name__contains=value)| Q(location__m_name__contains=value)
+            Q(location__p_name__contains=value) | Q(location__m_name__contains=value)
         )
 
 
@@ -148,4 +148,3 @@ class PlanViewSets(viewsets.ModelViewSet):
         serializer = serializers.AbstractPlanSerializer(self.filter_queryset(models.Plan.objects.all()),
                                                         many=True, context={'request': request})
         return Response(serializer.data)
-
