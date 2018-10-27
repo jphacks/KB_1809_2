@@ -86,14 +86,23 @@ class ReportTest(APITestCase):
 
     def test_get(self):
         """GET /plan/plans/<plan_id>/reports/ レポートを取得するテスト"""
-        Report.objects.create(user=self.user, plan_id=self.test_plan['pk'])
+        Report.objects.create(user=self.user, plan_id=self.test_plan['pk'], image=img_file)
         res = self.client.get("/plan/plans/{}/reports/".format(self.test_plan['pk']), format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(1, len(res.data))
 
     def test_get_detail(self):
         """GET /plan/plans/<plan_id>/reports/<report_id>/ レポート詳細を取得するテスト"""
-        rep = Report.objects.create(user=self.user, plan_id=self.test_plan['pk'])
+        rep = Report.objects.create(user=self.user, plan_id=self.test_plan['pk'], image=img_file)
         res = self.client.get("/plan/plans/{}/reports/{}/".format(self.test_plan['pk'], rep.pk), format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual("test_user", res.data['user']['username'])
+
+    def test_not_image(self):
+        """POST /plan/plans/<plan_id>/reports/ 画像情報無しでレポートをPOSTするとエラーが返ってくる"""
+        res = self.client.post("/plan/plans/{}/reports/".format(self.test_plan['pk']), data={
+            "plan_id": self.test_plan['pk'],
+            "text": "test report",
+            "image": ""
+        }, format="json")
+        self.assertEqual(400, res.status_code)
