@@ -3,6 +3,8 @@ import uuid
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFit
 
 
 def get_image_path(instance, filename):
@@ -70,7 +72,11 @@ class Spot(models.Model):
     lat = models.FloatField("緯度")
     lon = models.FloatField("経度")
     note = models.TextField("ノート")
-    image = models.ImageField("投稿画像", upload_to=get_image_path)
+    image = ProcessedImageField(verbose_name="投稿画像",
+                                upload_to=get_image_path,
+                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZEZ['SPOT'])],
+                                format='JPEG',
+                                options={'quality': 80})
     order = models.IntegerField("回る順番", default=0)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
 
@@ -125,7 +131,11 @@ class Report(models.Model):
                              verbose_name="ユーザー")
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="reports", verbose_name="プラン")
     text = models.TextField("テキスト")
-    image = models.ImageField("投稿画像", upload_to=get_image_path)
+    image = ProcessedImageField(verbose_name="投稿画像",
+                                upload_to=get_image_path,
+                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZEZ['REPORT'])],
+                                format='JPEG',
+                                options={'quality': 80})
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
 
     class Meta:
