@@ -2,6 +2,7 @@ import os
 import uuid
 from django.db import models
 from django.conf import settings
+from django.dispatch import receiver
 
 
 def get_image_path(instance, filename):
@@ -132,3 +133,37 @@ class Report(models.Model):
 
     def __str__(self):
         return str(self.user) + ' reported about' + str(self.plan)
+
+
+@receiver(models.signals.post_delete, sender=Spot)
+@receiver(models.signals.post_delete, sender=Report)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    レコード削除時にファイルも削除する
+    """
+    if instance.image:
+        img = instance.image.path
+        basename = os.path.basename(img)
+        if basename != 'user.png' and os.path.isfile(img):
+            os.remove(instance.image.path)
+
+
+@receiver(models.signals.pre_save, sender=Spot)
+@receiver(models.signals.pre_save, sender=Report)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    レコードの更新時にファイルの変更があれば古いものを削除する
+    """
+    # PrimaryKeyを持たない（=更新では無く作成の）場合
+    if not instance.pk:
+        return None
+
+    try:
+        old_image = sender.objects.get(pk=instance.pk).image
+    except sender.DoesNotExist:
+        return None
+
+    new_image = instance.image
+    if not old_image == new_image:
+        if os.path.isfile(old_image.path):
+            os.remove(old_image.path)
