@@ -72,7 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                                default="icons/user.png",
                                null=True,
                                blank=True,
-                               processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZEZ['ICON'])],
+                               processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZES['ICON'])],
                                format='PNG')
 
     USERNAME_FIELD = 'username'

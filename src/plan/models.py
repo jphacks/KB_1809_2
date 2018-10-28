@@ -74,7 +74,7 @@ class Spot(models.Model):
     note = models.TextField("ノート")
     image = ProcessedImageField(verbose_name="投稿画像",
                                 upload_to=get_image_path,
-                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZEZ['SPOT'])],
+                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZES['SPOT'])],
                                 format='JPEG',
                                 options={'quality': 80})
     order = models.IntegerField("回る順番", default=0)
@@ -133,7 +133,7 @@ class Report(models.Model):
     text = models.TextField("テキスト")
     image = ProcessedImageField(verbose_name="投稿画像",
                                 upload_to=get_image_path,
-                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZEZ['REPORT'])],
+                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZES['REPORT'])],
                                 format='JPEG',
                                 options={'quality': 80})
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
