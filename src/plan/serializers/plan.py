@@ -23,12 +23,14 @@ class AbstractPlanSerializer(serializers.ModelSerializer):
                   'created_at', 'user', 'favorite_count', 'comment_count')
 
     def to_representation(self, instance):
-        res = super(AbstractPlanSerializer, self).to_representation(instance)
-        all_spots = res['spots']
-        if len(res['spots']) > 0:
-            res['spots'] = [all_spots[0], all_spots[-1]]
-        res['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
-        return res
+        data = super(AbstractPlanSerializer, self).to_representation(instance)
+        all_spots = data['spots']
+        if len(data['spots']) > 0:
+            data['spots'] = [all_spots[0], all_spots[-1]]
+        data['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
+        if self.context['request'].version == 'v2':
+            data['created_at'] = int(instance.created_at.strftime('%s'))
+        return data
 
 
 class PlanSerializer(serializers.ModelSerializer):
