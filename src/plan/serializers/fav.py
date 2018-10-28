@@ -48,3 +48,11 @@ class FavSerializer(serializers.ModelSerializer):
         if not is_created:
             raise serializers.ValidationError({'plan_id': 'already favorite'})
         return fav
+
+    def to_representation(self, instance):
+        created_at = instance.created_at
+        data = super(FavSerializer, self).to_representation(instance)
+        if self.context['request'].version == 'v2':
+            created_at = created_at.strftime('%s')
+            data['created_at'] = int(created_at)
+        return data

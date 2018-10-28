@@ -36,3 +36,11 @@ class SpotSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         plan = validated_data.pop('plan_id')
         return Spot.objects.create(**validated_data, plan=plan)
+
+    def to_representation(self, instance):
+        created_at = instance.created_at
+        data = super(SpotSerializer, self).to_representation(instance)
+        if self.context['request'].version == 'v2':
+            created_at = created_at.strftime('%s')
+            data['created_at'] = int(created_at)
+        return data
