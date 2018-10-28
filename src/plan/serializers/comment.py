@@ -44,9 +44,7 @@ class CommentSerializer(serializers.ModelSerializer):
         }
 
     def to_representation(self, instance):
-        created_at = instance.created_at
         data = super(CommentSerializer, self).to_representation(instance)
         if self.context['request'].version == 'v2':
-            created_at = created_at.strftime('%s')
-            data['created_at'] = int(created_at)
+            data['created_at'] = int(instance.created_at.strftime('%s'))
         return data
