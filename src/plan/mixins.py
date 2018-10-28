@@ -3,6 +3,17 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 
+class NestedRetrieveMixin(object):
+    """
+    /plans/<plan_pk>/favs/<id>/ のようなネストされた要素の詳細をGETするmixin
+    """
+
+    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
+        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
+        serializer = self.get_serializer(comment)
+        return Response(serializer.data)
+
+
 class NestedDestroyMixin(object):
     """
     /plans/<plan_pk>/favs/<id>/ のようなネストされた要素をDELETEする時のmixin

@@ -4,7 +4,6 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 
 from . import models, serializers, permissions, paginations, mixins as custom_mixins
@@ -54,7 +53,7 @@ class ReportViewSets(viewsets.ModelViewSet):
 
 class FavViewSets(custom_mixins.NestedListMixin,
                   custom_mixins.NestedDestroyMixin,
-                  mixins.RetrieveModelMixin,
+                  custom_mixins.NestedRetrieveMixin,
                   mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     """
@@ -78,11 +77,6 @@ class FavViewSets(custom_mixins.NestedListMixin,
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     pagination_class = paginations.VersioningPagination
 
-    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
-        fav = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
-        serializer = self.get_serializer(fav)
-        return Response(serializer.data)
-
     @action(methods=['post', 'delete'], detail=False, url_path='me')
     def me(self, request, plan_pk=None, **kwargs):
         """POSTでふぁぼ，DELETEであんふぁぼする"""
@@ -105,6 +99,7 @@ class FavViewSets(custom_mixins.NestedListMixin,
 
 class CommentViewSets(custom_mixins.NestedListMixin,
                       custom_mixins.NestedDestroyMixin,
+                      custom_mixins.NestedRetrieveMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
@@ -126,11 +121,6 @@ class CommentViewSets(custom_mixins.NestedListMixin,
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     pagination_class = paginations.VersioningPagination
-
-    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
-        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
-        serializer = self.get_serializer(comment)
-        return Response(serializer.data)
 
     def create(self, request, plan_pk=None, **kwargs):
         data = request.data
