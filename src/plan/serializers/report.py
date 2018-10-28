@@ -31,6 +31,12 @@ class ReportSerializer(serializers.ModelSerializer):
         fields = ("pk", "user", "plan_id", "image", "text", "created_at")
         list_serializer_class = ReportListSerializer
 
+    def to_representation(self, instance):
+        data = super(ReportSerializer, self).to_representation(instance)
+        if self.context['request'].version == 'v2':
+            data['created_at'] = int(instance.created_at.strftime('%s'))
+        return data
+
     def validate(self, attrs):
         """必要フィールドを含んでいるかのバリデーション"""
         field = ('plan_id', 'image', 'text')

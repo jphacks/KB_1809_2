@@ -97,4 +97,6 @@ class PlanSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super(PlanSerializer, self).to_representation(instance)
         data['is_favorite'] = instance.favs.filter(user=self.context['request'].user).exists()
+        if self.context['request'].version == 'v2':
+            data['created_at'] = int(instance.created_at.strftime('%s'))
         return data
