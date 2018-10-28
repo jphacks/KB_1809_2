@@ -37,10 +37,10 @@ class PlanSerializer(serializers.ModelSerializer):
     """
 
     spots = SpotSerializer(many=True, allow_null=True)
-    comments = CommentSerializer(many=True, allow_null=True)
-    reports = ReportSerializer(many=True, allow_null=True)
-    user = SimpleUserSerializer()
-    location = LocationSerializer()
+    comments = CommentSerializer(many=True, allow_null=True, read_only=True)
+    reports = ReportSerializer(many=True, allow_null=True, read_only=True)
+    user = SimpleUserSerializer(read_only=True)
+    location = LocationSerializer(read_only=True)
 
     class Meta:
         model = Plan

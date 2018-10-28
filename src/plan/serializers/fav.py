@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from plan.models import Fav, Plan
+from plan.models import Plan
 
 from accounts.serializers import SimpleUserSerializer
-from .base import BaseListSerializer
 from plan.models import Fav
+from .base import BaseListSerializer
 
 
 class FavListSerializer(BaseListSerializer):
@@ -22,8 +22,8 @@ class FavSerializer(serializers.ModelSerializer):
     単一のFavを処理するSerializer
     """
 
-    user = SimpleUserSerializer()
-    plan_id = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
+    user = SimpleUserSerializer(read_only=True)
+    plan_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Fav
