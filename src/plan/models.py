@@ -156,12 +156,12 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     """
     # PrimaryKeyを持たない（=更新では無く作成の）場合
     if not instance.pk:
-        return False
+        return None
 
     try:
         old_image = sender.objects.get(pk=instance.pk).image
     except sender.DoesNotExist:
-        return False
+        return None
 
     new_image = instance.image
     if not old_image == new_image:
