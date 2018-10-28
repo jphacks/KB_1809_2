@@ -181,3 +181,9 @@ JWT_AUTH = {
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+PLANNAP_IMAGE_SIZES = {
+    'ICON': (100, 100),
+    'SPOT': (600, 600),
+    'REPORT': (600, 600),
+}

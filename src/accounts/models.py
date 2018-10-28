@@ -1,11 +1,12 @@
 import os
 import uuid
-from urllib.parse import urljoin
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.utils.safestring import mark_safe
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFit
 
 
 def get_image_path(instance, filename):
@@ -66,8 +67,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField('登録日時', auto_now_add=True)
     updated_at = models.DateTimeField('更新日時', auto_now=True)
 
-    icon = models.ImageField("アイコン", upload_to=get_image_path, default="icons/user.png",
-                             null=True, blank=True)
+    icon = ProcessedImageField(verbose_name="アイコン",
+                               upload_to=get_image_path,
+                               default="icons/user.png",
+                               null=True,
+                               blank=True,
+                               processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZES['ICON'])],
+                               format='PNG')
 
     USERNAME_FIELD = 'username'
 
