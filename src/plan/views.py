@@ -53,6 +53,7 @@ class ReportViewSets(viewsets.ModelViewSet):
 
 
 class FavViewSets(custom_mixins.NestedListMixin,
+                  custom_mixins.NestedDestroyMixin,
                   mixins.RetrieveModelMixin,
                   mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
@@ -103,9 +104,9 @@ class FavViewSets(custom_mixins.NestedListMixin,
 
 
 class CommentViewSets(custom_mixins.NestedListMixin,
+                      custom_mixins.NestedDestroyMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
     """
     retrieve:
@@ -125,12 +126,6 @@ class CommentViewSets(custom_mixins.NestedListMixin,
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     pagination_class = paginations.VersioningPagination
-
-    def destroy(self, request, pk=None, plan_pk=None, **kwargs):
-        user = request.user
-        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk, user=user)
-        self.perform_destroy(comment)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
         comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)

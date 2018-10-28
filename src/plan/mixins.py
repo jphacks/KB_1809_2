@@ -1,4 +1,21 @@
+from rest_framework import status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
+
+class NestedDestroyMixin(object):
+    """
+    /plans/<plan_pk>/favs/<id>/ のようなネストされた要素をDELETEする時のmixin
+    """
+
+    def destroy(self, request, pk=None, plan_pk=None, **kwargs):
+        user = request.user
+        comment = get_object_or_404(self.get_queryset(), pk=pk, plan_id=plan_pk, user=user)
+        self.perform_destroy(comment)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
 
 
 class NestedListMixin(object):
