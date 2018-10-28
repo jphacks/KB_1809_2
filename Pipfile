@@ -18,6 +18,7 @@ django-extra-fields = "*"
 django-filter = "*"
 django-cleanup = "*"
 drf-nested-routers = "*"
+django-imagekit = "*"
 
 [dev-packages]
 
