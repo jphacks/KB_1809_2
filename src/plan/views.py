@@ -3,21 +3,15 @@ from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
-from django_filters import rest_framework as filters
 
-from . import models, serializers, permissions, paginations
-
-
-class LocationFilter(filters.FilterSet):
-    # フィルタの定義
-    p_name = filters.CharFilter(lookup_expr="contains")
-    m_name = filters.CharFilter(lookup_expr="contains")
-
-    class Meta:
-        model = models.Location
-        fields = ['p_name', 'm_name']
+from . import (
+    filters,
+    models,
+    serializers,
+    permissions,
+    paginations,
+    mixins as custom_mixins,
+)
 
 
 class LocationViewSets(viewsets.ReadOnlyModelViewSet):
@@ -32,7 +26,7 @@ class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
-    filter_class = LocationFilter
+    filter_class = filters.LocationFilter
     pagination_class = paginations.VersioningPagination
 
 
@@ -52,8 +46,9 @@ class ReportViewSets(viewsets.ModelViewSet):
     pagination_class = paginations.VersioningPagination
 
 
-class FavViewSets(mixins.ListModelMixin,
-                  mixins.RetrieveModelMixin,
+class FavViewSets(custom_mixins.NestedListMixin,
+                  custom_mixins.NestedDestroyMixin,
+                  custom_mixins.NestedRetrieveMixin,
                   mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     """
@@ -77,20 +72,6 @@ class FavViewSets(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     pagination_class = paginations.VersioningPagination
 
-    def list(self, request, plan_pk=None, **kwargs):
-        queryset = self.queryset.filter(plan_id=plan_pk).all()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
-        fav = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
-        serializer = self.get_serializer(fav)
-        return Response(serializer.data)
-
     @action(methods=['post', 'delete'], detail=False, url_path='me')
     def me(self, request, plan_pk=None, **kwargs):
         """POSTでふぁぼ，DELETEであんふぁぼする"""
@@ -111,10 +92,11 @@ class FavViewSets(mixins.ListModelMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class CommentViewSets(mixins.ListModelMixin,
+class CommentViewSets(custom_mixins.NestedListMixin,
+                      custom_mixins.NestedDestroyMixin,
+                      custom_mixins.NestedRetrieveMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
     """
     retrieve:
@@ -135,26 +117,6 @@ class CommentViewSets(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     pagination_class = paginations.VersioningPagination
 
-    def list(self, request, plan_pk=None, **kwargs):
-        queryset = self.queryset.filter(plan_id=plan_pk).all()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def destroy(self, request, pk=None, plan_pk=None, **kwargs):
-        user = request.user
-        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk, user=user)
-        self.perform_destroy(comment)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def retrieve(self, request, pk=None, plan_pk=None, **kwargs):
-        comment = get_object_or_404(self.queryset, pk=pk, plan_id=plan_pk)
-        serializer = self.get_serializer(comment)
-        return Response(serializer.data)
-
     def create(self, request, plan_pk=None, **kwargs):
         data = request.data
         data['plan_id'] = int(plan_pk)
@@ -165,20 +127,12 @@ class CommentViewSets(mixins.ListModelMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class PlanLocationFilter(filters.FilterSet):
-    location = filters.CharFilter(method='filter_p_and_m_name')
-
-    class Meta:
-        models = models.Plan
-        fields = ('location',)
-
-    def filter_p_and_m_name(self, queryset, name, value):
-        return queryset.filter(
-            Q(location__p_name__contains=value) | Q(location__m_name__contains=value)
-        )
-
-
-class PlanViewSets(viewsets.ModelViewSet):
+class PlanViewSets(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   custom_mixins.NestedListMixin,
+                   viewsets.GenericViewSet):
     """
     retrieve:
         Planの詳細を取得する
@@ -196,16 +150,10 @@ class PlanViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    filter_class = PlanLocationFilter
+    filter_class = filters.PlanLocationFilter
     pagination_class = paginations.VersioningPagination
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = serializers.AbstractPlanSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
-
-        serializer = serializers.AbstractPlanSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
+        return super(PlanViewSets, self).list(
+            request, serializer_class=serializers.AbstractPlanSerializer, *args, **kwargs
+        )
