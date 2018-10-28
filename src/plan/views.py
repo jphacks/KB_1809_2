@@ -3,20 +3,15 @@ from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Q
-from django_filters import rest_framework as filters
 
-from . import models, serializers, permissions, paginations, mixins as custom_mixins
-
-
-class LocationFilter(filters.FilterSet):
-    # フィルタの定義
-    p_name = filters.CharFilter(lookup_expr="contains")
-    m_name = filters.CharFilter(lookup_expr="contains")
-
-    class Meta:
-        model = models.Location
-        fields = ['p_name', 'm_name']
+from . import (
+    filters,
+    models,
+    serializers,
+    permissions,
+    paginations,
+    mixins as custom_mixins,
+)
 
 
 class LocationViewSets(viewsets.ReadOnlyModelViewSet):
@@ -31,7 +26,7 @@ class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
-    filter_class = LocationFilter
+    filter_class = filters.LocationFilter
     pagination_class = paginations.VersioningPagination
 
 
@@ -132,19 +127,6 @@ class CommentViewSets(custom_mixins.NestedListMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class PlanLocationFilter(filters.FilterSet):
-    location = filters.CharFilter(method='filter_p_and_m_name')
-
-    class Meta:
-        models = models.Plan
-        fields = ('location',)
-
-    def filter_p_and_m_name(self, queryset, name, value):
-        return queryset.filter(
-            Q(location__p_name__contains=value) | Q(location__m_name__contains=value)
-        )
-
-
 class PlanViewSets(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
@@ -168,7 +150,7 @@ class PlanViewSets(mixins.CreateModelMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    filter_class = PlanLocationFilter
+    filter_class = filters.PlanLocationFilter
     pagination_class = paginations.VersioningPagination
 
     def list(self, request, *args, **kwargs):
