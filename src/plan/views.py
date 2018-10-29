@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status, mixins
+from rest_framework import viewsets, status, mixins, generics
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
@@ -175,24 +175,15 @@ class UserFavView(custom_mixins.UserNestedListMixin,
 
 
 class UserPlanView(custom_mixins.UserNestedListMixin,
-                   custom_mixins.UserNestedRetrieveMixin,
                    viewsets.GenericViewSet):
     """
     指定したユーザのPlanについてのエンドポイント．
 
     list:
         指定したユーザが投稿したPlan一覧を返すエンドポイント
-
-    retrieve:
-        指定したユーザが投稿したPlanの詳細を返すエンドポイント
     """
     queryset = models.Plan.objects.all()
     parser_classes = (JSONParser,)
-    serializer_class = serializers.PlanSerializer
+    serializer_class = serializers.AbstractPlanSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = paginations.VersioningPagination
-
-    def list(self, request, user_pk=None, serializer_class=None, **kwargs):
-        return super(UserPlanView, self).list(
-            request, user_pk=user_pk, serializer_class=serializers.AbstractPlanSerializer, **kwargs
-        )

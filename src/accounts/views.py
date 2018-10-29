@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
-from rest_framework import viewsets, mixins, permissions
+from rest_framework import viewsets, mixins, permissions, generics
 from .forms import LoginForm
 from . import serializers, models, permissions as custom_permissions
 
@@ -41,9 +41,7 @@ class UserViewSets(mixins.RetrieveModelMixin,
         return serializers.UserSerializer
 
 
-class MeViewSets(mixins.RetrieveModelMixin,
-                 mixins.UpdateModelMixin,
-                 viewsets.GenericViewSet):
+class MeViewSet(generics.RetrieveUpdateAPIView):
     """
     自分自身の情報を取得するエンドポイント
 
