@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from plan.models import Comment, Plan
-
 from accounts.serializers import SimpleUserSerializer
+from plan.models import Comment
 from .base import BaseListSerializer
 
 
@@ -21,8 +20,8 @@ class CommentSerializer(serializers.ModelSerializer):
     単一のCommentを処理するSerializer
     """
 
-    user = SimpleUserSerializer()
-    plan_id = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all())
+    user = SimpleUserSerializer(read_only=True)
+    plan_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Comment
