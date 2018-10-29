@@ -98,7 +98,7 @@ class UserNestedListMixin(object):
         :return:
         """
         if user_pk is None:
-            queryset = self.get_queryset()
+            queryset = self.get_queryset().filter(user_id=request.user.pk)
         else:
             queryset = self.get_queryset().filter(user_id=int(user_pk)).all()
         queryset = self.filter_queryset(queryset)
@@ -116,6 +116,8 @@ class UserNestedRetrieveMixin(object):
     """
 
     def retrieve(self, request, pk=None, user_pk=None, **kwargs):
+        if user_pk is None:
+            user_pk = request.user.pk
         comment = get_object_or_404(self.queryset, pk=pk, user_id=int(user_pk))
         serializer = self.get_serializer(comment)
         return Response(serializer.data)

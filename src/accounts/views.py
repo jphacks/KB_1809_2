@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework import viewsets, mixins, permissions
 from .forms import LoginForm
-from . import serializers, models
+from . import serializers, models, permissions as custom_permissions
 
 
 class Login(LoginView):
@@ -32,6 +32,7 @@ class UserViewSets(mixins.RetrieveModelMixin,
         ユーザのプロフィールを更新するエンドポイント．
     """
     queryset = models.User.objects.all()
+    permission_classes = (permissions.IsAuthenticated, custom_permissions.IsOwnerOrReadOnly)
 
     def get_permissions(self):
         if self.action == 'create':
@@ -42,3 +43,23 @@ class UserViewSets(mixins.RetrieveModelMixin,
         if self.action == 'create':
             return serializers.CreateUserSerializer
         return serializers.UserSerializer
+
+
+class MeViewSets(mixins.RetrieveModelMixin,
+                 mixins.UpdateModelMixin,
+                 viewsets.GenericViewSet):
+    """
+    自分自身の情報を取得するエンドポイント
+
+    retrieve:
+        自分自身のプロフィールを取得するエンドポイント
+
+    update:
+        自分自身のプロフィールを更新するエンドポイント
+    """
+    serializer_class = serializers.UserSerializer
+    permission_classes = (permissions.IsAuthenticated, custom_permissions.IsOwnerOrReadOnly)
+
+    def get_object(self):
+        """ログインしているユーザを返す"""
+        return self.request.user
