@@ -1,8 +1,8 @@
 from plan.models import Comment
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class CommentTestCase(BaseTestCase):
+class CommentTestCase(V1TestCase):
 
     def test_post(self):
         """POST /plan/plans/<id>/comments/: コメント作成テスト"""

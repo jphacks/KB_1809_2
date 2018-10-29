@@ -1,10 +1,10 @@
 import copy
 from plan.models import Report
 from .data import img_file
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class ReportTest(BaseTestCase):
+class ReportTest(V1TestCase):
 
     def test_post(self):
         """POST /plan/plans/<plan_id>/reports/ レポート作成テスト"""

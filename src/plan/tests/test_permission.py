@@ -1,8 +1,8 @@
 from accounts.models import User
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class PermissionTest(BaseTestCase):
+class PermissionTest(V1TestCase):
 
     def test_plan_permission(self):
         """POST /plan/plans/<id>/: 他人のPlanは更新不可であるかどうかのテスト"""

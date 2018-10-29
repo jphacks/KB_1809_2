@@ -1,8 +1,8 @@
 from plan.models import Plan
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class PlanTest(BaseTestCase):
+class PlanTest(V1TestCase):
 
     def test_get(self):
         """GET /plan/plans/<id>/: Planの詳細を取得するテスト"""

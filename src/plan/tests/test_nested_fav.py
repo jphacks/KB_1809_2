@@ -1,9 +1,9 @@
 from plan.models import Fav
 from .data import plan_data
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class FavTest(BaseTestCase):
+class FavTest(V1TestCase):
 
     def test_post(self):
         """POST /plan/plans/<id>/favs/: いいね作成テスト"""

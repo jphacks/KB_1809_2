@@ -1,9 +1,9 @@
 import copy
 from plan.models import Plan
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class PlanListTest(BaseTestCase):
+class PlanListTest(V1TestCase):
 
     def test_post(self):
         """POST /plan/plans/: プラン作成テスト"""
