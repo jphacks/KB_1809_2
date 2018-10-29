@@ -159,19 +159,30 @@ class PlanViewSets(mixins.CreateModelMixin,
         )
 
 
-class UserFavView(custom_mixins.UserNestedListMixin,
-                  viewsets.GenericViewSet):
+class MyFavPlanView(generics.ListAPIView):
     """
-    指定したユーザのふぁぼに関するエンドポイント
+    自身がふぁぼしたPlanに関するエンドポイント
 
     list:
-        指定したユーザのふぁぼ一覧を返すエンドポイント
+        ふぁぼったPlan一覧を返すエンドポイント
     """
-    queryset = models.Fav.objects.all()
+    queryset = models.Plan.objects.all()
     parser_classes = (JSONParser,)
-    serializer_class = serializers.FavSerializer
+    serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = paginations.VersioningPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(favs__user=self.request.user).all()
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class UserPlanView(custom_mixins.UserNestedListMixin,
