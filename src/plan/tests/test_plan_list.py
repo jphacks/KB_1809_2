@@ -1,5 +1,6 @@
 import copy
 from plan.models import Plan, Fav
+from accounts.models import User
 from .base import V1TestCase
 
 
@@ -33,6 +34,19 @@ class PlanListTest(V1TestCase):
         """GET /me/favs/: 自分がふぁぼったPlan一覧が返されることを確認するテスト"""
         Fav.objects.create(user=self.user, plan_id=self.plan_id)
         res = self.client.get(self.my_fav_path)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(1, len(res.data))
+        self.assertEqual(self.plan_id, res.data[0]['pk'])
+
+    def test_get_specific_user_plans(self):
+        """GET /users/<id>/plans/: 特定のユーザの投稿したPlan一覧取得テスト"""
+        new_user = User.objects.create(**self.user_data[1], is_active=True)
+        self._set_credentials(new_user)
+        res = self.client.get(self.user_plan_path.format(new_user.pk))
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(0, len(res.data))
+        self._set_credentials(self.user)
+        res = self.client.get(self.user_plan_path.format(self.user.pk))
         self.assertEqual(200, res.status_code)
         self.assertEqual(1, len(res.data))
         self.assertEqual(self.plan_id, res.data[0]['pk'])

@@ -33,7 +33,6 @@ class V1TestCase(APITestCase):
         # Users
         self.user_path = self.path_prefix + 'users/'
         self.user_detail_path = self.user_path + '{}/'
-        self.user_fav_path = self.user_detail_path + 'favs/'
         self.user_plan_path = self.user_detail_path + 'plans/'
 
     def setUp(self):
