@@ -5,7 +5,7 @@ from .base import V1TestCase
 class PlanTest(V1TestCase):
 
     def test_get(self):
-        """GET /plan/plans/<id>/: Planの詳細を取得するテスト"""
+        """GET /plans/<id>/: Planの詳細を取得するテスト"""
         self.client.post(self.plan_path, data=self.plan_data, format='json')
         plan = Plan.objects.all()[0]
         res = self.client.get(self.plan_detail_path.format(plan.pk))

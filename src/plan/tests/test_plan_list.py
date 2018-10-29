@@ -6,12 +6,12 @@ from .base import V1TestCase
 class PlanListTest(V1TestCase):
 
     def test_post(self):
-        """POST /plan/plans/: プラン作成テスト"""
+        """POST /plans/: プラン作成テスト"""
         res = self.client.post(self.plan_path, data=self.plan_data, format='json')
         self.assertEqual(201, res.status_code)
 
     def test_get(self):
-        """GET /plan/plans/: プラン取得テスト"""
+        """GET /plans/: プラン取得テスト"""
         self.client.post(self.plan_path, data=self.plan_data, format='json')
         new_data = copy.deepcopy(self.plan_data)
         new_data['name'] = "新しいコース"
@@ -21,7 +21,7 @@ class PlanListTest(V1TestCase):
         self.assertEqual(res.data[0]['name'], new_data['name'])
 
     def test_fail_post(self):
-        """POST /plan/plans/: 正しくない情報ではPlanが作成されないことを確認するテスト"""
+        """POST /plans/: 正しくない情報ではPlanが作成されないことを確認するテスト"""
         invalid_data = copy.deepcopy(self.plan_data)
         invalid_data['spots'] = []
         res = self.client.post(self.plan_path, data=invalid_data, format='json')

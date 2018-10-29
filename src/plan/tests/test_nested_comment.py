@@ -5,7 +5,7 @@ from .base import V1TestCase
 class CommentTestCase(V1TestCase):
 
     def test_post(self):
-        """POST /plan/plans/<id>/comments/: コメント作成テスト"""
+        """POST /plans/<id>/comments/: コメント作成テスト"""
         res = self.client.post(self.comment_path.format(self.plan_id), data=self.comment_data[0], format="json")
         self.assertEqual(201, res.status_code)
         self.assertEqual(self.comment_data[0]['text'], res.data['text'])
@@ -13,7 +13,7 @@ class CommentTestCase(V1TestCase):
         self.assertEqual(self.user.username, res.data['user']['username'])
 
     def test_get_list(self):
-        """GET /plan/plans/<id>/comments/: コメント一覧取得テスト"""
+        """GET /plans/<id>/comments/: コメント一覧取得テスト"""
         comment = Comment.objects.create(user=self.user, plan_id=self.plan_id, **self.comment_data[0])
         res = self.client.get(self.comment_path.format(self.plan_id), data={}, format="json")
         self.assertEqual(200, res.status_code)
@@ -26,7 +26,7 @@ class CommentTestCase(V1TestCase):
         self.assertTrue(comment.pk in comments_list)
 
     def test_destroy(self):
-        """DELETE /plan/plans/<id>/comments/<id>/: コメント削除テスト"""
+        """DELETE /plans/<id>/comments/<id>/: コメント削除テスト"""
         comment = Comment.objects.create(user=self.user, plan_id=self.plan_id, **self.comment_data[0])
         res = self.client.delete(self.comment_detail_path.format(self.plan_id, comment.pk))
         self.assertEqual(204, res.status_code)
@@ -34,12 +34,12 @@ class CommentTestCase(V1TestCase):
             Comment.objects.get(pk=comment.pk)
 
     def test_destroy_fail(self):
-        """DELETE /plan/plans/<id>/comments/<id>/: 存在しないコメントの削除テスト"""
+        """DELETE /plans/<id>/comments/<id>/: 存在しないコメントの削除テスト"""
         res = self.client.delete(self.comment_detail_path.format(self.plan_id, 9999))
         self.assertEqual(404, res.status_code)
 
     def test_get_detail(self):
-        """GET /plan/plans/<id>/comments/<id>/: コメントの詳細取得テスト"""
+        """GET /plans/<id>/comments/<id>/: コメントの詳細取得テスト"""
         comment = Comment.objects.create(user=self.user, plan_id=self.plan_id, **self.comment_data[0])
         res = self.client.get(self.comment_detail_path.format(self.plan_id, comment.pk), format="json")
         self.assertEqual(200, res.status_code)
@@ -47,7 +47,7 @@ class CommentTestCase(V1TestCase):
         self.assertEqual(self.user.username, res.data['user']['username'])
 
     def test_get_detail_404(self):
-        """GET /plan/plans/<id>/comments/<id>/: コメントの詳細取得404テスト"""
+        """GET /plans/<id>/comments/<id>/: コメントの詳細取得404テスト"""
         res = self.client.get(self.comment_detail_path.format(self.plan_id, 9999), data={}, format="json")
         self.assertEqual(404, res.status_code)
         new_plan_res = self.client.post(self.plan_path, data=self.plan_data, format='json')

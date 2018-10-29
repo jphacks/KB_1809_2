@@ -7,7 +7,7 @@ from .base import V1TestCase
 class ReportTest(V1TestCase):
 
     def test_post(self):
-        """POST /plan/plans/<plan_id>/reports/ レポート作成テスト"""
+        """POST /plans/<plan_id>/reports/ レポート作成テスト"""
         data = copy.deepcopy(self.report_data[0])
         data["plan_id"] = self.plan_id
         res = self.client.post(self.report_path.format(self.plan_id), data=data, format="json")
@@ -16,7 +16,7 @@ class ReportTest(V1TestCase):
         self.assertEqual(self.user.username, res.data['user']['username'])
 
     def test_multi_post(self):
-        """POST /plan/plans/<plan_id>/reports/ レポートを重複して作成するテスト"""
+        """POST /plans/<plan_id>/reports/ レポートを重複して作成するテスト"""
         for i in range(2):
             data = copy.deepcopy(self.report_data[i])
             data["plan_id"] = self.plan_id
@@ -26,21 +26,21 @@ class ReportTest(V1TestCase):
         self.assertEqual(2, len(reports))
 
     def test_get(self):
-        """GET /plan/plans/<plan_id>/reports/ レポートを取得するテスト"""
+        """GET /plans/<plan_id>/reports/ レポートを取得するテスト"""
         Report.objects.create(user=self.user, plan_id=self.plan_id, image=img_file)
         res = self.client.get(self.report_path.format(self.plan_id), format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(1, len(res.data))
 
     def test_get_detail(self):
-        """GET /plan/plans/<plan_id>/reports/<report_id>/ レポート詳細を取得するテスト"""
+        """GET /plans/<plan_id>/reports/<report_id>/ レポート詳細を取得するテスト"""
         rep = Report.objects.create(user=self.user, plan_id=self.plan_id, image=img_file)
         res = self.client.get(self.report_detail_path.format(self.plan_id, rep.pk), format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(self.user.username, res.data['user']['username'])
 
     def test_not_image(self):
-        """POST /plan/plans/<plan_id>/reports/ 画像情報無しでレポートをPOSTするとエラーが返ってくる"""
+        """POST /plans/<plan_id>/reports/ 画像情報無しでレポートをPOSTするとエラーが返ってくる"""
         res = self.client.post(self.report_path.format(self.plan_id), data={
             "plan_id": self.plan_id,
             "text": "test report",
