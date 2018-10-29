@@ -1,5 +1,5 @@
 import copy
-from plan.models import Plan
+from plan.models import Plan, Fav
 from .base import V1TestCase
 
 
@@ -28,3 +28,11 @@ class PlanListTest(V1TestCase):
         self.assertEqual(400, res.status_code)
         plans = Plan.objects.all()
         self.assertEqual(1, plans.count())
+
+    def test_get_my_fav_plans(self):
+        """GET /me/favs/: 自分がふぁぼったPlan一覧が返されることを確認するテスト"""
+        Fav.objects.create(user=self.user, plan_id=self.plan_id)
+        res = self.client.get(self.my_fav_path)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(1, len(res.data))
+        self.assertEqual(self.plan_id, res.data[0]['pk'])
