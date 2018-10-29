@@ -1,12 +1,14 @@
 from rest_framework import serializers
 
-from plan.models import Plan
+from plan.models import Plan, Spot
 from .spot import SpotSerializer
 from .comment import CommentSerializer
 from .report import ReportSerializer
 from .location import LocationSerializer
 from plan.geo import convert_geo_to_location
 from accounts.serializers import SimpleUserSerializer
+
+from datetime import datetime
 
 
 class AbstractPlanSerializer(serializers.ModelSerializer):
@@ -73,6 +75,36 @@ class PlanSerializer(serializers.ModelSerializer):
         if len(spots) < 2:
             raise serializers.ValidationError('This field must have more than two spots.')
         return spots
+
+    def update(self, instance, validated_data):
+        # spot
+        Spot.objects.filter(plan_id=instance.pk).delete()
+        spots = validated_data['spots']
+        for i in range(len(spots)):
+            spots[i]['plan_id'] = instance.pk
+        ss = SpotSerializer(data=spots, many=True)
+        ss.is_valid(raise_exception=True)
+        ss.save()
+
+        # location
+        n_spots = len(spots)
+        if n_spots < 2:
+            raise serializers.ValidationError({'spots': 'This field must have more than two spots.'})
+        lat = sum([s['lat'] for s in spots]) / n_spots
+        lon = sum([s['lon'] for s in spots]) / n_spots
+        loc = convert_geo_to_location(lat, lon)
+        location_serializer = LocationSerializer(data=loc.__dict__)
+        location_serializer.is_valid(raise_exception=True)
+        instance.location = location_serializer.save()
+
+        # other
+        instance.name = validated_data['name']
+        instance.price = validated_data['price']
+        instance.duration = validated_data['duration']
+        instance.note = validated_data['note']
+
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         user = self.context['request'].user
