@@ -18,7 +18,6 @@ class Logout(LoginRequiredMixin, LogoutView):
 
 class UserViewSets(mixins.RetrieveModelMixin,
                    mixins.CreateModelMixin,
-                   mixins.UpdateModelMixin,
                    viewsets.GenericViewSet):
 
     """
@@ -27,9 +26,6 @@ class UserViewSets(mixins.RetrieveModelMixin,
 
     create:
         ユーザを作成するエンドポイント．未認証のユーザでも叩ける．
-
-    update:
-        ユーザのプロフィールを更新するエンドポイント．
     """
     queryset = models.User.objects.all()
     permission_classes = (permissions.IsAuthenticated, custom_permissions.IsOwnerOrReadOnly)
