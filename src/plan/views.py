@@ -27,7 +27,7 @@ class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
     filter_class = filters.LocationFilter
-    pagination_class = paginations.VersioningPagination
+    pagination_class = paginations.UnwrapPagination
 
 
 class SpotViewSets(viewsets.ModelViewSet):
@@ -35,7 +35,7 @@ class SpotViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.SpotSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.VersioningPagination
+    pagination_class = paginations.UnwrapPagination
 
 
 class ReportViewSets(viewsets.ModelViewSet):
@@ -43,7 +43,7 @@ class ReportViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.ReportSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.VersioningPagination
+    pagination_class = paginations.UnwrapPagination
 
 
 class FavViewSets(custom_mixins.NestedListMixin,
@@ -70,7 +70,7 @@ class FavViewSets(custom_mixins.NestedListMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.VersioningPagination
+    pagination_class = paginations.UnwrapPagination
 
     @action(methods=['post', 'delete'], detail=False, url_path='me')
     def me(self, request, plan_pk=None, **kwargs):
@@ -115,7 +115,7 @@ class CommentViewSets(custom_mixins.NestedListMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.VersioningPagination
+    pagination_class = paginations.UnwrapPagination
 
     def create(self, request, plan_pk=None, **kwargs):
         data = request.data
@@ -151,7 +151,7 @@ class PlanViewSets(mixins.CreateModelMixin,
     serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     filter_class = filters.PlanLocationFilter
-    pagination_class = paginations.VersioningPagination
+    pagination_class = paginations.UnwrapPagination
 
     def list(self, request, *args, **kwargs):
         return super(PlanViewSets, self).list(
