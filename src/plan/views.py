@@ -9,6 +9,7 @@ from . import (
     models,
     serializers,
     permissions,
+    paginations,
     mixins as custom_mixins,
 )
 
@@ -26,6 +27,7 @@ class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
     filter_class = filters.LocationFilter
+    pagination_class = paginations.UnwrapPagination
 
 
 class SpotViewSets(viewsets.ModelViewSet):

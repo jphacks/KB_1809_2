@@ -169,8 +169,8 @@ REST_FRAMEWORK = {
     ),
     'DATETIME_FORMAT': "%Y/%m/%d",
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
-    'DEFAULT_PAGINATION_CLASS': 'plan.paginations.UnwrapPagination',
-    'PAGE_SIZE': 10
+    'DEFAULT_PAGINATION_CLASS': 'plan.paginations.TimestampCursorPagination',
+    'PAGE_SIZE': 5
 }
 
 JWT_AUTH = {
