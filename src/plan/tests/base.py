@@ -6,7 +6,8 @@ from rest_framework_jwt.settings import api_settings
 
 from accounts.models import User
 from plan.models import Comment, Plan, Fav, Spot, Location, Report
-from .data import plan_data, comment_data, user_data, report_data, location_data
+from plan.geo import LocationMeta
+from .data import plan_data, comment_data, user_data, report_data, location_data, lat, lon
 
 
 class V1TestCase(APITestCase):
@@ -43,6 +44,7 @@ class V1TestCase(APITestCase):
         self.comment_data = copy.deepcopy(comment_data)
         self.report_data = copy.deepcopy(report_data)
         self.location_data = copy.deepcopy(location_data)
+        self.location_meta = LocationMeta(**self.location_data[0], lat=lat, lon=lon)
         self.user = User.objects.create_user(**self.user_data[0], is_active=True)
         self._set_credentials()
         self.plan = self.create_plan()

@@ -1,4 +1,5 @@
 import copy
+from unittest.mock import patch
 from plan.models import Plan
 from .base import V1TestCase
 
@@ -26,8 +27,10 @@ class PlanTest(V1TestCase):
             "note": "test note",
             "image": plan_data['spots'][0]['image']
         })
-        # TODO: mock
-        res = self.client.patch('/api/v1/plans/{}/'.format(self.plan_id), data=plan_data, format="json")
+        with patch('plan.serializers.plan.convert_geo_to_location') as mocked:
+            mocked.return_value = self.location_meta
+            res = self.client.patch(self.plan_detail_path.format(self.plan_id), data=plan_data, format="json")
+            self.assertEqual(1, mocked.call_count)
         # check StatusCode, Plan Name, Num of Spots, and Spot order
         self.assertEqual(200, res.status_code)
         self.assertEqual(plan_data['name'], res.data['name'])

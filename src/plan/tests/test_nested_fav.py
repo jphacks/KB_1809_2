@@ -1,5 +1,4 @@
 from plan.models import Fav
-from .data import plan_data
 from .base import V1TestCase
 
 
@@ -48,7 +47,7 @@ class FavTest(V1TestCase):
         """GET /plans/<id>/favs/<id>/: いいねの詳細取得404テスト"""
         res = self.client.get(self.fav_detail_path.format(self.plan_id, 9999), data={}, format="json")
         self.assertEqual(404, res.status_code)
-        new_plan_res = self.client.post(self.plan_path, data=plan_data, format='json')
-        fav = Fav.objects.create(user=self.user, plan_id=new_plan_res.data['pk'])
+        new_plan = self.create_plan()
+        fav = Fav.objects.create(user=self.user, plan_id=new_plan.pk)
         res = self.client.get(self.fav_detail_path.format(9999, fav.pk), data={}, format="json")
         self.assertEqual(404, res.status_code)
