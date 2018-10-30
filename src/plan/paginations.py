@@ -8,6 +8,4 @@ class VersioningPagination(LimitOffsetPagination):
     """
 
     def get_paginated_response(self, data):
-        if self.request.version == 'v1':
-            return Response(data)
-        return super(VersioningPagination, self).get_paginated_response(data)
+        return Response(data)
