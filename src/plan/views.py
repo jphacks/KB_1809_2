@@ -87,9 +87,9 @@ class FavViewSets(custom_mixins.PlanNestedListMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class CommentViewSets(custom_mixins.NestedListMixin,
-                      custom_mixins.NestedDestroyMixin,
-                      custom_mixins.NestedRetrieveMixin,
+class CommentViewSets(custom_mixins.PlanNestedListMixin,
+                      custom_mixins.PlanNestedDestroyMixin,
+                      custom_mixins.PlanNestedRetrieveMixin,
                       mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
     """
