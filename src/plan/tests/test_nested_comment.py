@@ -50,7 +50,7 @@ class CommentTestCase(V1TestCase):
         """GET /plans/<id>/comments/<id>/: コメントの詳細取得404テスト"""
         res = self.client.get(self.comment_detail_path.format(self.plan_id, 9999), data={}, format="json")
         self.assertEqual(404, res.status_code)
-        new_plan_res = self.client.post(self.plan_path, data=self.plan_data, format='json')
-        fav = Comment.objects.create(user=self.user, plan_id=new_plan_res.data['pk'])
+        new_plan = self.create_plan()
+        fav = Comment.objects.create(user=self.user, plan_id=new_plan.pk)
         res = self.client.get(self.comment_detail_path.format(9999, fav.pk), data={}, format="json")
         self.assertEqual(404, res.status_code)

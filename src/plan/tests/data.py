@@ -60,4 +60,19 @@ report_data = [
     }
 ]
 
+location_data = [
+    {
+        "p_code": 26,
+        "p_name": "京都府",
+        "m_name": "京都市 右京区",
+        "m_code": 26108
+    },
+    {
+        "p_code": 28,
+        "p_name": "兵庫県",
+        "m_name": "神戸市 中央区",
+        "m_code": 28110
+    },
+]
+
 

@@ -7,7 +7,7 @@ class FavTest(V1TestCase):
 
     def test_post(self):
         """POST /plans/<id>/favs/: いいね作成テスト"""
-        res = self.client.post(self.fav_path.format(self.plan_res.data['pk']), data={}, format="json")
+        res = self.client.post(self.fav_path.format(self.plan_id), data={}, format="json")
         self.assertEqual(201, res.status_code)
 
     def test_get_list(self):
@@ -39,7 +39,7 @@ class FavTest(V1TestCase):
 
     def test_get_detail(self):
         """GET /plans/<id>/favs/<id>/: いいねの詳細取得テスト"""
-        fav = Fav.objects.create(user=self.user, plan_id=self.plan_res.data['pk'])
+        fav = Fav.objects.create(user=self.user, plan_id=self.plan_id)
         res = self.client.get(self.fav_detail_path.format(self.plan_id, fav.pk), data={}, format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(self.user.username, res.data['user']['username'])

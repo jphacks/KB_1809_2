@@ -7,6 +7,7 @@ class PermissionTest(V1TestCase):
     def test_plan_permission(self):
         """POST /plans/<id>/: 他人のPlanは更新不可であるかどうかのテスト"""
         self._set_credentials(self.user)
+        # TODO: mock
         res = self.client.post(self.plan_path, data=self.plan_data, format='json')
         self.assertEqual(201, res.status_code)
         user2 = User.objects.create(**self.user_data[1], is_active=True)
