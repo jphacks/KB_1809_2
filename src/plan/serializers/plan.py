@@ -8,8 +8,6 @@ from .location import LocationSerializer
 from plan.geo import convert_geo_to_location
 from accounts.serializers import SimpleUserSerializer
 
-from datetime import datetime
-
 
 class AbstractPlanSerializer(serializers.ModelSerializer):
     """
@@ -58,8 +56,6 @@ class PlanSerializer(serializers.ModelSerializer):
         spots_count = len(data['spots'])
         if spots_count < 2:
             raise serializers.ValidationError({'spots': 'This field must have more than two spots.'})
-        # data['lat'] = sum([d['lat'] for d in data['spots']]) / spots_count
-        # data['lon'] = sum([d['lon'] for d in data['spots']]) / spots_count
         return data
 
     def validate(self, attrs):
