@@ -7,22 +7,33 @@ from plan.models import Comment, Plan, Fav
 from .data import plan_data, comment_data, user_data, report_data
 
 
-class BaseTestCase(APITestCase):
+class V1TestCase(APITestCase):
 
     path_prefix = '/api/v1/'
-    # Plan
-    plan_path = path_prefix + 'plans/'
-    plan_detail_path = plan_path + '{}/'
-    # Fav
-    fav_path = plan_detail_path + 'favs/'
-    fav_detail_path = fav_path + '{}/'
-    fav_me_path = fav_path + 'me/'
-    # Comment
-    comment_path = plan_detail_path + 'comments/'
-    comment_detail_path = comment_path + '{}/'
-    # Report
-    report_path = plan_detail_path + 'reports/'
-    report_detail_path = report_path + '{}/'
+
+    def __init__(self, *args, **kwargs):
+        super(V1TestCase, self).__init__(*args, **kwargs)
+        # Plan
+        self.plan_path = self.path_prefix + 'plans/'
+        self.plan_detail_path = self.plan_path + '{}/'
+        # Fav
+        self.fav_path = self.plan_detail_path + 'favs/'
+        self.fav_detail_path = self.fav_path + '{}/'
+        self.fav_me_path = self.fav_path + 'me/'
+        # Comment
+        self.comment_path = self.plan_detail_path + 'comments/'
+        self.comment_detail_path = self.comment_path + '{}/'
+        # Report
+        self.report_path = self.plan_detail_path + 'reports/'
+        self.report_detail_path = self.report_path + '{}/'
+        # Me
+        self.me_path = self.path_prefix + 'me/'
+        self.my_fav_path = self.me_path + 'favs/'
+        self.my_plan_path = self.me_path + 'plans/'
+        # Users
+        self.user_path = self.path_prefix + 'users/'
+        self.user_detail_path = self.user_path + '{}/'
+        self.user_plan_path = self.user_detail_path + 'plans/'
 
     def setUp(self):
         self.user_data = copy.deepcopy(user_data)
@@ -35,7 +46,7 @@ class BaseTestCase(APITestCase):
         self.plan_id = self.plan_res.data['pk']
 
     def tearDown(self):
-        super(BaseTestCase, self).tearDown()
+        super(V1TestCase, self).tearDown()
         Comment.objects.all().delete()
         Fav.objects.all().delete()
         Plan.objects.all().delete()
@@ -49,3 +60,7 @@ class BaseTestCase(APITestCase):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
         self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
+
+
+class V2TestCase(V1TestCase):
+    path_prefix = '/api/v2/'

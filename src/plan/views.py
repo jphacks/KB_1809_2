@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status, mixins
+from rest_framework import viewsets, status, mixins, generics
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +9,6 @@ from . import (
     models,
     serializers,
     permissions,
-    paginations,
     mixins as custom_mixins,
 )
 
@@ -27,7 +26,6 @@ class LocationViewSets(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LocationSerializer
     permission_classes = (IsAuthenticated,)
     filter_class = filters.LocationFilter
-    pagination_class = paginations.UnwrapPagination
 
 
 class SpotViewSets(viewsets.ModelViewSet):
@@ -35,7 +33,6 @@ class SpotViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.SpotSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.UnwrapPagination
 
 
 class ReportViewSets(viewsets.ModelViewSet):
@@ -43,12 +40,11 @@ class ReportViewSets(viewsets.ModelViewSet):
     parser_classes = (JSONParser,)
     serializer_class = serializers.ReportSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.UnwrapPagination
 
 
-class FavViewSets(custom_mixins.NestedListMixin,
-                  custom_mixins.NestedDestroyMixin,
-                  custom_mixins.NestedRetrieveMixin,
+class FavViewSets(custom_mixins.PlanNestedListMixin,
+                  custom_mixins.PlanNestedDestroyMixin,
+                  custom_mixins.PlanNestedRetrieveMixin,
                   mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     """
@@ -70,7 +66,6 @@ class FavViewSets(custom_mixins.NestedListMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.FavSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.UnwrapPagination
 
     @action(methods=['post', 'delete'], detail=False, url_path='me')
     def me(self, request, plan_pk=None, **kwargs):
@@ -92,9 +87,9 @@ class FavViewSets(custom_mixins.NestedListMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class CommentViewSets(custom_mixins.NestedListMixin,
-                      custom_mixins.NestedDestroyMixin,
-                      custom_mixins.NestedRetrieveMixin,
+class CommentViewSets(custom_mixins.PlanNestedListMixin,
+                      custom_mixins.PlanNestedDestroyMixin,
+                      custom_mixins.PlanNestedRetrieveMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
@@ -115,7 +110,6 @@ class CommentViewSets(custom_mixins.NestedListMixin,
     parser_classes = (JSONParser,)
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
-    pagination_class = paginations.UnwrapPagination
 
     def create(self, request, plan_pk=None, **kwargs):
         data = request.data
@@ -131,7 +125,7 @@ class PlanViewSets(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.DestroyModelMixin,
-                   custom_mixins.NestedListMixin,
+                   custom_mixins.PlanNestedListMixin,
                    viewsets.GenericViewSet):
     """
     retrieve:
@@ -151,9 +145,47 @@ class PlanViewSets(mixins.CreateModelMixin,
     serializer_class = serializers.PlanSerializer
     permission_classes = (IsAuthenticated, permissions.IsOwnerOrReadOnly)
     filter_class = filters.PlanLocationFilter
-    pagination_class = paginations.UnwrapPagination
 
     def list(self, request, *args, **kwargs):
         return super(PlanViewSets, self).list(
             request, serializer_class=serializers.AbstractPlanSerializer, *args, **kwargs
         )
+
+
+class MyFavPlanView(generics.ListAPIView):
+    """
+    自身がふぁぼしたPlanに関するエンドポイント
+
+    list:
+        ふぁぼったPlan一覧を返すエンドポイント
+    """
+    queryset = models.Plan.objects.all()
+    parser_classes = (JSONParser,)
+    serializer_class = serializers.PlanSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(favs__user=self.request.user).all()
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class UserPlanView(custom_mixins.UserNestedListMixin,
+                   viewsets.GenericViewSet):
+    """
+    指定したユーザのPlanについてのエンドポイント．
+
+    list:
+        指定したユーザが投稿したPlan一覧を返すエンドポイント
+    """
+    queryset = models.Plan.objects.all()
+    parser_classes = (JSONParser,)
+    serializer_class = serializers.AbstractPlanSerializer
+    permission_classes = (IsAuthenticated,)

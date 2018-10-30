@@ -1,11 +1,11 @@
 from accounts.models import User
-from .base import BaseTestCase
+from .base import V1TestCase
 
 
-class PermissionTest(BaseTestCase):
+class PermissionTest(V1TestCase):
 
     def test_plan_permission(self):
-        """POST /plan/plans/<id>/: 他人のPlanは更新不可であるかどうかのテスト"""
+        """POST /plans/<id>/: 他人のPlanは更新不可であるかどうかのテスト"""
         self._set_credentials(self.user)
         res = self.client.post(self.plan_path, data=self.plan_data, format='json')
         self.assertEqual(201, res.status_code)
