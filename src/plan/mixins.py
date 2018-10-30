@@ -102,11 +102,12 @@ class UserNestedListMixin(object):
         else:
             queryset = self.get_queryset().filter(user_id=int(user_pk)).all()
         queryset = self.filter_queryset(queryset)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self._serialize(serializer_class, page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self._serialize(queryset, page, many=True)
+        if request.version == 'v2':
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self._serialize(serializer_class, page, many=True)
+                return self.get_paginated_response(serializer.data)
+        serializer = self._serialize(serializer_class, queryset, many=True)
         return Response(serializer.data)
 
 
