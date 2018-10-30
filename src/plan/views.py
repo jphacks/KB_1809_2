@@ -90,7 +90,6 @@ class FavViewSets(custom_mixins.PlanNestedListMixin,
 class CommentViewSets(custom_mixins.PlanNestedListMixin,
                       custom_mixins.PlanNestedDestroyMixin,
                       custom_mixins.PlanNestedRetrieveMixin,
-                      mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
     """

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from plan.models import Plan
+from plan.models import Plan, Spot
 from .spot import SpotSerializer
 from .comment import CommentSerializer
 from .report import ReportSerializer
@@ -56,8 +56,6 @@ class PlanSerializer(serializers.ModelSerializer):
         spots_count = len(data['spots'])
         if spots_count < 2:
             raise serializers.ValidationError({'spots': 'This field must have more than two spots.'})
-        data['lat'] = sum([d['lat'] for d in data['spots']]) / spots_count
-        data['lon'] = sum([d['lon'] for d in data['spots']]) / spots_count
         return data
 
     def validate(self, attrs):
@@ -74,25 +72,66 @@ class PlanSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('This field must have more than two spots.')
         return spots
 
+    def update(self, instance, validated_data):
+        # spot
+        Spot.objects.filter(plan_id=instance.pk).delete()
+        spots = validated_data['spots']
+        self.get_or_create_spots(spots, instance.pk)
+
+        # location
+        instance.location = self.get_or_create_location(spots)
+
+        # other
+        instance.name = validated_data['name']
+        instance.price = validated_data['price']
+        instance.duration = validated_data['duration']
+        instance.note = validated_data['note']
+
+        instance.save()
+        return instance
+
     def create(self, validated_data):
         user = self.context['request'].user
         spots_data = validated_data.pop('spots')
-        lat = validated_data.pop('lat')
-        lon = validated_data.pop('lon')
+
         # Planを作成してidを入手
         plan = Plan.objects.create(user=user, **validated_data)
-        for i in range(len(spots_data)):
-            spots_data[i]['plan_id'] = plan.pk
-        ss = SpotSerializer(data=spots_data, many=True)
+        self.get_or_create_spots(spots_data, plan.pk)
+
+        # 位置情報を地域名に変換
+        plan.location = self.get_or_create_location(spots_data)
+
+        plan.save()
+        return plan
+
+    @staticmethod
+    def get_or_create_spots(spots, plan_id):
+        """
+        指定のPlan IDに紐づくSpotを作成する
+        :param spots: JSON Spot list
+        :param plan_id: Plan`s primary key
+        :return: None
+        """
+        for i in range(len(spots)):
+            spots[i]['plan_id'] = plan_id
+        ss = SpotSerializer(data=spots, many=True)
         ss.is_valid(raise_exception=True)
         ss.save()
-        # 位置情報を地域名に変換
+
+    @staticmethod
+    def get_or_create_location(spots):
+        """
+        SpotからPlanの座標を計算してLocationを作成する
+        :param spots: JSON Spot List
+        :return: Location model object
+        """
+        n_spots = len(spots)
+        lat = sum([s['lat'] for s in spots]) / n_spots
+        lon = sum([s['lon'] for s in spots]) / n_spots
         loc = convert_geo_to_location(lat, lon)
         location_serializer = LocationSerializer(data=loc.__dict__)
         location_serializer.is_valid(raise_exception=True)
-        plan.location = location_serializer.save()
-        plan.save()
-        return plan
+        return location_serializer.save()
 
     def to_representation(self, instance):
         data = super(PlanSerializer, self).to_representation(instance)
