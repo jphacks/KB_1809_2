@@ -1,10 +1,13 @@
 import copy
+from base64 import b64decode
+from django.core.files import base
 from rest_framework.test import APITestCase
 from rest_framework_jwt.settings import api_settings
 
 from accounts.models import User
-from plan.models import Comment, Plan, Fav
-from .data import plan_data, comment_data, user_data, report_data
+from plan.models import Comment, Plan, Fav, Spot, Location, Report
+from plan.geo import LocationMeta
+from .data import plan_data, comment_data, user_data, report_data, location_data, lat, lon
 
 
 class V1TestCase(APITestCase):
@@ -40,10 +43,12 @@ class V1TestCase(APITestCase):
         self.plan_data = copy.deepcopy(plan_data)
         self.comment_data = copy.deepcopy(comment_data)
         self.report_data = copy.deepcopy(report_data)
+        self.location_data = copy.deepcopy(location_data)
+        self.location_meta = LocationMeta(**self.location_data[0], lat=lat, lon=lon)
         self.user = User.objects.create_user(**self.user_data[0], is_active=True)
         self._set_credentials()
-        self.plan_res = self.client.post(self.plan_path, data=self.plan_data, format='json')
-        self.plan_id = self.plan_res.data['pk']
+        self.plan = self.create_plan()
+        self.plan_id = self.plan.pk
 
     def tearDown(self):
         super(V1TestCase, self).tearDown()
@@ -51,6 +56,8 @@ class V1TestCase(APITestCase):
         Fav.objects.all().delete()
         Plan.objects.all().delete()
         User.objects.all().delete()
+        Location.objects.all().delete()
+        Report.objects.all().delete()
 
     def _set_credentials(self, user=None):
         if not user:
@@ -60,6 +67,24 @@ class V1TestCase(APITestCase):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
         self.client.credentials(HTTP_AUTHORIZATION="JWT " + token)
+
+    def create_plan(self, data=None, user=None, loc_data=None):
+        if user is None:
+            user = self.user
+        if data is None:
+            data = copy.deepcopy(self.plan_data)
+        if loc_data is None:
+            loc_data = self.location_data[0]
+        spots_data = data.pop('spots')
+        location, _ = Location.objects.get_or_create(**loc_data)
+        plan = Plan.objects.create(**data, location=location, user=user)
+        spots = []
+        for i in range(len(spots_data)):
+            b64image = spots_data[i]['image']
+            spots_data[i]['image'] = base.ContentFile(b64decode(b64image), 'icons/user.png')
+            spot = Spot.objects.create(**spots_data[i], plan_id=plan.id, order=i)
+            spots.append(spot)
+        return plan
 
 
 class V2TestCase(V1TestCase):

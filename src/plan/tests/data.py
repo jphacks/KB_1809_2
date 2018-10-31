@@ -4,6 +4,9 @@ import base64
 from django.conf import settings
 
 
+lat = 35.012072
+lon = 135.6791853
+
 img_file = os.path.join(settings.MEDIA_ROOT, "icons", "user.png")
 with open(img_file, 'rb') as fp:
     b64image = base64.encodebytes(fp.read())
@@ -15,14 +18,14 @@ plan_data = {
     "spots": [
         {
             "name": "嵐山公園",
-            "lat": 35.012072,
-            "lon": 135.6791853,
+            "lat": lat,
+            "lon": lon,
             "note": "いい公園",
             "image": b64image
         }, {
             "name": "嵐山公園",
-            "lat": 35.012072,
-            "lon": 135.6791853,
+            "lat": lat,
+            "lon": lon,
             "note": "いい公園",
             "image": b64image
         }
@@ -58,6 +61,21 @@ report_data = [
         "text": "This is a test report 2.",
         "image": b64image
     }
+]
+
+location_data = [
+    {
+        "p_code": 26,
+        "p_name": "京都府",
+        "m_name": "京都市 右京区",
+        "m_code": 26108
+    },
+    {
+        "p_code": 28,
+        "p_name": "兵庫県",
+        "m_name": "神戸市 中央区",
+        "m_code": 28110
+    },
 ]
 
 
