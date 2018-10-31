@@ -1,8 +1,9 @@
 import copy
 from unittest.mock import patch
+from django.conf import settings
 from plan.models import Plan, Fav
 from accounts.models import User
-from .base import V1TestCase
+from .base import V1TestCase, V2TestCase
 
 
 class PlanListTest(V1TestCase):
@@ -53,3 +54,27 @@ class PlanListTest(V1TestCase):
         self.assertEqual(200, res.status_code)
         self.assertEqual(1, len(res.data))
         self.assertEqual(self.plan_id, res.data[0]['pk'])
+
+
+class PlanListV2TestCase(V2TestCase):
+
+    def test_pagination(self):
+        """GET /plans/: プランがページネーションするかの確認テスト"""
+        page_size = settings.REST_FRAMEWORK['PAGE_SIZE']
+        for _ in range(page_size):
+            self.create_plan()
+        res = self.client.get(self.plan_path)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(page_size, len(res.data['results']))
+        self.assertNotEqual(None, res.data['next'])
+        self.assertEqual(None, res.data['previous'])
+        query = self.plan_path + '?cursor=' + res.data['next']
+        next_res = self.client.get(query)
+        self.assertEqual(200, next_res.status_code)
+        self.assertEqual(1, len(next_res.data['results']))
+        self.assertEqual(None, next_res.data['next'])
+        self.assertNotEqual(None, next_res.data['previous'])
+        self.create_plan()
+        re_res = self.client.get(self.plan_path + '?cursor=' + res.data['next'])
+        self.assertEqual(200, re_res.status_code)
+        self.assertEqual(next_res.data, re_res.data)
