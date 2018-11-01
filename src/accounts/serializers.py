@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'created_at', 'icon', 'updated_at')
+        fields = ('pk', 'username', 'email', 'created_at', 'icon', 'updated_at')
 
 
 class SimpleUserSerializer(serializers.ModelSerializer):
@@ -18,16 +18,18 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
+
+    email = serializers.EmailField(required=True)
+
     class Meta:
         model = User
-        fields = ('username', 'password')
+        fields = ('pk', 'username', 'password', 'email')
         extra_kwargs = {'password': {'write_only': True}}
 
+    def validate_email(self, email):
+        if len(email) == 0:
+            raise serializers.ValidationError({'email': 'Do not allow to use empty email'})
+        return email
+
     def create(self, validated_data):
-        user = User(
-            username=validated_data['username'],
-            is_active=True,
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+        return User.objects.create_user(**validated_data, is_active=True)
