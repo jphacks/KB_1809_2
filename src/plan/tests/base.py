@@ -29,6 +29,7 @@ class V1TestCase(APITestCase):
         # Report
         self.report_path = self.plan_detail_path + 'reports/'
         self.report_detail_path = self.report_path + '{}/'
+        self.report_patch_path = self.report_detail_path
         # Me
         self.me_path = self.path_prefix + 'me/'
         self.my_fav_path = self.me_path + 'favs/'

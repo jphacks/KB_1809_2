@@ -47,3 +47,16 @@ class ReportTest(V1TestCase):
             "image": ""
         }, format="json")
         self.assertEqual(400, res.status_code)
+
+    def test_patch(self):
+        """PATCH /plans/<plan_id/reports/<report_id>/ レポートを編集するテスト"""
+        rep = Report.objects.create(user=self.user, plan_id=self.plan_id, image=img_file)
+
+        patch_data = self.report_data[0]
+        patch_data['text'] = "patched"
+        patch_data['plan_id'] = rep.plan_id
+
+        res = self.client.patch(self.report_patch_path.format(rep.plan_id, rep.pk), data=patch_data, format="json")
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(rep.pk, res.data['pk'])
+        self.assertEqual(patch_data['text'], res.data['text'])
