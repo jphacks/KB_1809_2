@@ -7,7 +7,7 @@ from rest_framework_jwt.settings import api_settings
 from accounts.models import User
 from plan.models import Comment, Plan, Fav, Spot, Location, Report
 from plan.geo import LocationMeta
-from .data import plan_data, comment_data, user_data, report_data, location_data, lat, lon
+from .data import plan_data, comment_data, user_data, report_data, location_data, lat, lon, b64image
 
 
 class V1TestCase(APITestCase):
@@ -29,6 +29,7 @@ class V1TestCase(APITestCase):
         # Report
         self.report_path = self.plan_detail_path + 'reports/'
         self.report_detail_path = self.report_path + '{}/'
+        self.report_patch_path = self.report_detail_path
         # Me
         self.me_path = self.path_prefix + 'me/'
         self.my_fav_path = self.me_path + 'favs/'
@@ -80,11 +81,13 @@ class V1TestCase(APITestCase):
         plan = Plan.objects.create(**data, location=location, user=user)
         spots = []
         for i in range(len(spots_data)):
-            b64image = spots_data[i]['image']
-            spots_data[i]['image'] = base.ContentFile(b64decode(b64image), 'icons/user.png')
+            spots_data[i]['image'] = self.get_test_image()
             spot = Spot.objects.create(**spots_data[i], plan_id=plan.id, order=i)
             spots.append(spot)
         return plan
+
+    def get_test_image(self):
+        return base.ContentFile(b64decode(b64image), 'icons/user.png')
 
 
 class V2TestCase(V1TestCase):

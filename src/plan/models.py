@@ -154,8 +154,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
     if instance.image:
         img = instance.image.path
-        basename = os.path.basename(img)
-        if basename != 'user.png' and os.path.isfile(img):
+        if os.path.isfile(img):
             os.remove(instance.image.path)
 
 

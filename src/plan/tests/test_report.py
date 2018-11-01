@@ -1,6 +1,5 @@
 import copy
 from plan.models import Report
-from .data import img_file
 from .base import V1TestCase
 
 
@@ -27,14 +26,14 @@ class ReportTest(V1TestCase):
 
     def test_get(self):
         """GET /plans/<plan_id>/reports/ レポートを取得するテスト"""
-        Report.objects.create(user=self.user, plan_id=self.plan_id, image=img_file)
+        Report.objects.create(user=self.user, plan_id=self.plan_id, image=self.get_test_image())
         res = self.client.get(self.report_path.format(self.plan_id), format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(1, len(res.data))
 
     def test_get_detail(self):
         """GET /plans/<plan_id>/reports/<report_id>/ レポート詳細を取得するテスト"""
-        rep = Report.objects.create(user=self.user, plan_id=self.plan_id, image=img_file)
+        rep = Report.objects.create(user=self.user, plan_id=self.plan_id, image=self.get_test_image())
         res = self.client.get(self.report_detail_path.format(self.plan_id, rep.pk), format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(self.user.username, res.data['user']['username'])
@@ -47,3 +46,16 @@ class ReportTest(V1TestCase):
             "image": ""
         }, format="json")
         self.assertEqual(400, res.status_code)
+
+    def test_patch(self):
+        """PATCH /plans/<plan_id/reports/<report_id>/ レポートを編集するテスト"""
+        rep = Report.objects.create(user=self.user, plan_id=self.plan_id, image=self.get_test_image())
+
+        patch_data = self.report_data[0]
+        patch_data['text'] = "patched"
+        patch_data['plan_id'] = rep.plan_id
+
+        res = self.client.patch(self.report_detail_path.format(rep.plan_id, rep.pk), data=patch_data, format="json")
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(rep.pk, res.data['pk'])
+        self.assertEqual(patch_data['text'], res.data['text'])
