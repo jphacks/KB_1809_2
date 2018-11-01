@@ -21,6 +21,7 @@ class Location(models.Model):
     p_code = models.IntegerField("都道府県コード")
     m_name = models.CharField("市区町村名", max_length=255)
     m_code = models.IntegerField("市区町村コード")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('p_code', 'm_code')
