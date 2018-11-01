@@ -56,7 +56,7 @@ class ReportTest(V1TestCase):
         patch_data['text'] = "patched"
         patch_data['plan_id'] = rep.plan_id
 
-        res = self.client.patch(self.report_patch_path.format(rep.plan_id, rep.pk), data=patch_data, format="json")
+        res = self.client.patch(self.report_detail_path.format(rep.plan_id, rep.pk), data=patch_data, format="json")
         self.assertEqual(200, res.status_code)
         self.assertEqual(rep.pk, res.data['pk'])
         self.assertEqual(patch_data['text'], res.data['text'])
