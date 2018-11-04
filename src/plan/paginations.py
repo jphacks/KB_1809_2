@@ -19,6 +19,7 @@ class TimestampCursorPagination(CursorPagination):
     """
     ordering = '-created_at'
     page_size = 5
+    page_size_query_param = 'limit'
 
     def paginate_queryset(self, queryset, request, view=None):
         page = super(TimestampCursorPagination, self).paginate_queryset(queryset, request, view)
