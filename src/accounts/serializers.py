@@ -10,6 +10,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('pk', 'username', 'email', 'created_at', 'icon', 'updated_at')
 
+    def to_representation(self, instance):
+        data = super(UserSerializer, self).to_representation(instance)
+        if self.context['request'].version == 'v2':
+            data['created_at'] = int(instance.created_at.strftime('%s'))
+            data['updated_at'] = int(instance.updated_at.strftime('%s'))
+        return data
+
 
 class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +40,4 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data, is_active=True)
+
