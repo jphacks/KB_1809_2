@@ -16,8 +16,8 @@ class Logout(LoginRequiredMixin, LogoutView):
     template_name = 'accounts/top.html'
 
 
-class UserViewSets(mixins.RetrieveModelMixin,
-                   mixins.CreateModelMixin,
+class UserViewSets(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
 
     """
@@ -41,7 +41,7 @@ class UserViewSets(mixins.RetrieveModelMixin,
         return serializers.UserSerializer
 
 
-class MeViewSet(generics.RetrieveUpdateAPIView):
+class MeViewSet(generics.RetrieveUpdateDestroyAPIView):
     """
     自分自身の情報を取得するエンドポイント
 
