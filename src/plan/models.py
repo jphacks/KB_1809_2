@@ -1,5 +1,6 @@
 import os
 import uuid
+from urllib import parse
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
@@ -62,6 +63,21 @@ class Plan(models.Model):
         """コメントの数を返す"""
         return self.comments.count()
 
+    def construct_map_url(self):
+        """紐付いているSpotの情報からGoogle Mapで経路を表示するURLを構築する"""
+        base_url = "https://www.google.com/maps/dir/"
+        coordinates = [spot.coordinates for spot in self.spots.all()]
+        params = {
+            'api': 1,
+            'travelmode': 'walking',
+            'origin': coordinates.pop(0),
+            'destination': coordinates.pop(-1),
+        }
+        if len(coordinates) > 0:
+            params['waypoints'] = '|'.join(coordinates)
+        query = parse.urlencode(params)
+        return base_url + '?' + query
+
 
 class Spot(models.Model):
     """
@@ -80,6 +96,21 @@ class Spot(models.Model):
                                 options={'quality': 80})
     order = models.IntegerField("回る順番", default=0)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+    @property
+    def coordinates(self):
+        """カンマ区切りの緯度経度を返す"""
+        return str(self.lat) + ',' + str(self.lon)
+
+    def construct_map_url(self):
+        """このSpotをGoogle Mapで開くURL"""
+        base_url = "https://www.google.com/maps/search/"
+        params = {
+            'api': 1,
+            'query': self.coordinates
+        }
+        query = parse.urlencode(params)
+        return base_url + '?' + query
 
     def __str__(self):
         """スポット名を返却"""
