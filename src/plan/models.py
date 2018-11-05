@@ -47,6 +47,7 @@ class Plan(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="plans", verbose_name="位置情報",
                                  null=True, blank=True)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+    map_url = models.TextField('経路URL', null=True)
 
     class Meta:
         ordering = ('-created_at', 'name')
@@ -96,6 +97,7 @@ class Spot(models.Model):
                                 options={'quality': 80})
     order = models.IntegerField("回る順番", default=0)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+    map_url = models.TextField('地点URL', null=True)
 
     @property
     def coordinates(self):
