@@ -68,6 +68,9 @@ class Plan(models.Model):
         """紐付いているSpotの情報からGoogle Mapで経路を表示するURLを構築する"""
         base_url = "https://www.google.com/maps/dir/"
         coordinates = [spot.coordinates for spot in self.spots.all()]
+        if len(coordinates) < 2:
+            # どのタイミングでコールされるかわからないため
+            return "https://www.google.com/"
         params = {
             'api': 1,
             'travelmode': 'walking',
@@ -210,3 +213,13 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_image == new_image:
         if os.path.isfile(old_image.path):
             os.remove(old_image.path)
+
+
+@receiver(models.signals.pre_save, sender=Spot)
+@receiver(models.signals.pre_save, sender=Plan)
+def construct_url_on_change(sender, instance, **kwargs):
+    """
+    更新/作成されたときにGoogle MapへのURLを再設定する
+    """
+    instance.map_url = instance.construct_map_url()
+

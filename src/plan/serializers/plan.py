@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from plan.models import Plan, Spot
 from .spot import SpotSerializer
-from .comment import CommentSerializer
 from .report import ReportSerializer
 from .location import LocationSerializer
 from plan.geo import convert_geo_to_location
@@ -20,7 +19,12 @@ class AbstractPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = ('pk', 'name', 'price', 'duration', 'note', 'location', 'spots',
-                  'created_at', 'user', 'favorite_count', 'comment_count')
+                  'created_at', 'user', 'favorite_count', 'comment_count', 'map_url')
+        extra_kwargs = {
+            'map_url': {'read_only': True},
+            'favorite_count': {'read_only': True},
+            'comment_count': {'read_only': True},
+        }
 
     def to_representation(self, instance):
         data = super(AbstractPlanSerializer, self).to_representation(instance)
@@ -39,7 +43,6 @@ class PlanSerializer(serializers.ModelSerializer):
     """
 
     spots = SpotSerializer(many=True, allow_null=True)
-    comments = CommentSerializer(many=True, allow_null=True, read_only=True)
     reports = ReportSerializer(many=True, allow_null=True, read_only=True)
     user = SimpleUserSerializer(read_only=True)
     location = LocationSerializer(read_only=True)
@@ -47,8 +50,13 @@ class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = ('pk', 'name', 'price', 'duration', 'note', 'location',
-                  'reports', 'created_at', 'comments', 'spots', 'user',
+                  'reports', 'created_at', 'spots', 'user', 'map_url',
                   'favorite_count', 'comment_count')
+        extra_kwargs = {
+            'map_url': {'read_only': True},
+            'favorite_count': {'read_only': True},
+            'comment_count': {'read_only': True},
+        }
 
     def to_internal_value(self, data):
         # res = {}
