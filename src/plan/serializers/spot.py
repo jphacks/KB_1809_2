@@ -30,8 +30,12 @@ class SpotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Spot
-        fields = ("pk", "name", "order", "lat", "lon", "note", "plan_id", "image", "created_at")
+        fields = ("pk", "name", "order", "lat", "lon", "note", "plan_id", "image", "created_at", "map_url")
         list_serializer_class = SpotListSerializer
+        extra_kwargs = {
+            'map_url': {'read_only': True},
+            'order': {'read_only': True},
+        }
 
     def create(self, validated_data):
         plan = validated_data.pop('plan_id')
