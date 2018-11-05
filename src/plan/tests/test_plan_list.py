@@ -4,6 +4,7 @@ from django.conf import settings
 from plan.models import Plan, Fav
 from accounts.models import User
 from .base import V1TestCase, V2TestCase
+from .data import plan_data
 
 
 class PlanListTest(V1TestCase):
@@ -78,3 +79,25 @@ class PlanListV2TestCase(V2TestCase):
         re_res = self.client.get(self.plan_path + '?cursor=' + res.data['next'])
         self.assertEqual(200, re_res.status_code)
         self.assertEqual(next_res.data, re_res.data)
+
+    def test_filter(self):
+        """GET /plans/?words=hogehoge Plan検索のテスト"""
+        data = copy.deepcopy(plan_data)
+        data['name'] = 'foo'
+        data['spots'][0]['name'] = 'kyoto'
+        data['spots'][1]['name'] = 'tokyo'
+        self.create_plan(data=data)
+
+        data = copy.deepcopy(plan_data)
+        data['name'] = 'bar'
+        data['spots'][0]['name'] = 'kobe'
+        data['spots'][1]['name'] = 'nara'
+        self.create_plan(data=data)
+
+        res = self.client.get(self.plan_path, data={"location": "kyoto kobe"})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(2, len(res.data['results']))
+
+        res = self.client.get(self.plan_path, data={"location": "foo kyoto"})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(1, len(res.data['results']))
