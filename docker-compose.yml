@@ -4,8 +4,8 @@ services:
   webapp:
     container_name: plannap-api-qa
     image: studioaquatan/plannap-api:latest
-    volumes:
-      - ./src:/opt/plannap-api
+#    volumes:
+#      - ./src:/opt/plannap-api
     env_file:
       - env_files/api.env
     expose:
@@ -22,7 +22,7 @@ services:
     env_file:
       - env_files/db.env
     volumes:
-      - ./env_files/data:/var/lib/mysql
+      - ./env_files/data:/var/lib/mysql:rw
     networks:
       default:
         aliases:

@@ -6,10 +6,8 @@ addons:
 
 services: docker
 
-branches:
-  only:
-    - master
-    - dev
+env:
+  - DEPLOY_BRANCH=dev
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_49f5ccf52a09_key -iv $encrypted_49f5ccf52a09_iv -in .travis/aquatan_studio.enc -out /tmp/aquatan_studio -d
@@ -22,14 +20,18 @@ script:
   - docker build -t plannap-api .
   - docker images
   - docker tag plannap-api studioaquatan/plannap-api:latest
-  - docker push studioaquatan/plannap-api:latest
+  - bash .travis/test.sh
+
+after_success:
+  - /bin/bash .travis/push_image.sh
 
 deploy:
   provider: script
   skip_cleanup: true
   script: /bin/bash .travis/deploy.sh
   on:
-    branch: dev
+    all_branches: true
+    condition: $TRAVIS_BRANCH = $DEPLOY_BRANCH
 
 notifications:
   email: false

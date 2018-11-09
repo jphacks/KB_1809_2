@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # normal deploy
-COMMAND="cd /opt/KB_1809_2 && sudo git pull && make pull && docker-compose -f docker-compose.prod.yml up -d --build && make qa-manage ARGS=migrate"
+START_SERVER="make prod-start"
+MIGRATE="make prod-manage ARGS=migrate"
+COMMAND="cd /opt/KB_1809_2 && sudo git checkout $DEPLOY_BRANCH && sudo git pull && make pull && $START_SERVER && $MIGRATE"
 
 # exec
 ssh -o StrictHostKeyChecking=no -i /tmp/aquatan_studio deploy@aqua.aquatan.studio ${COMMAND}

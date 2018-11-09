@@ -1,7 +1,11 @@
 import os
 import uuid
+from urllib import parse
 from django.db import models
 from django.conf import settings
+from django.dispatch import receiver
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFit
 
 
 def get_image_path(instance, filename):
@@ -18,6 +22,11 @@ class Location(models.Model):
     p_code = models.IntegerField("都道府県コード")
     m_name = models.CharField("市区町村名", max_length=255)
     m_code = models.IntegerField("市区町村コード")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('p_code', 'm_code')
+        unique_together = ('p_name', 'p_code', 'm_name', 'm_code')
 
     def __str__(self):
         """都道府県名+市区町村名を返却"""
@@ -38,6 +47,10 @@ class Plan(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="plans", verbose_name="位置情報",
                                  null=True, blank=True)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+    map_url = models.TextField('経路URL', null=True)
+
+    class Meta:
+        ordering = ('-created_at', 'name')
 
     def __str__(self):
         """プランの名前を返却"""
@@ -51,25 +64,65 @@ class Plan(models.Model):
         """コメントの数を返す"""
         return self.comments.count()
 
+    def construct_map_url(self):
+        """紐付いているSpotの情報からGoogle Mapで経路を表示するURLを構築する"""
+        base_url = "https://www.google.com/maps/dir/"
+        coordinates = [spot.coordinates for spot in self.spots.all()]
+        if len(coordinates) < 2:
+            # どのタイミングでコールされるかわからないため
+            return "https://www.google.com/"
+        params = {
+            'api': 1,
+            'travelmode': 'walking',
+            'origin': coordinates.pop(0),
+            'destination': coordinates.pop(-1),
+        }
+        if len(coordinates) > 0:
+            params['waypoints'] = '|'.join(coordinates)
+        query = parse.urlencode(params)
+        return base_url + '?' + query
+
 
 class Spot(models.Model):
     """
     店や場所など点のデータ
     """
     name = models.CharField("スポット名", max_length=255, default="")
-    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="spots", verbose_name="プラン")
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="spots", verbose_name="プラン",
+                             null=True, blank=True)
     lat = models.FloatField("緯度")
     lon = models.FloatField("経度")
     note = models.TextField("ノート")
-    image = models.ImageField("投稿画像", upload_to=get_image_path)
+    image = ProcessedImageField(verbose_name="投稿画像",
+                                upload_to=get_image_path,
+                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZES['SPOT'])],
+                                format='JPEG',
+                                options={'quality': 80})
     order = models.IntegerField("回る順番", default=0)
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+    map_url = models.TextField('地点URL', null=True)
+
+    @property
+    def coordinates(self):
+        """カンマ区切りの緯度経度を返す"""
+        return str(self.lat) + ',' + str(self.lon)
+
+    def construct_map_url(self):
+        """このSpotをGoogle Mapで開くURL"""
+        base_url = "https://www.google.com/maps/search/"
+        params = {
+            'api': 1,
+            'query': self.coordinates
+        }
+        query = parse.urlencode(params)
+        return base_url + '?' + query
 
     def __str__(self):
         """スポット名を返却"""
         return self.name
 
     class Meta:
+        ordering = ('order',)
         unique_together = ("plan", "order")
 
 
@@ -82,6 +135,13 @@ class Fav(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="favs", verbose_name="プラン")
     created_at = models.DateTimeField("お気に入りした日時", auto_now_add=True)
 
+    class Meta:
+        ordering = ('-created_at',)
+        unique_together = ('user', 'plan')
+
+    def __str__(self):
+        return str(self.user) + ' favorited ' + str(self.plan)
+
 
 class Comment(models.Model):
     """
@@ -93,6 +153,12 @@ class Comment(models.Model):
     text = models.TextField("テキスト")
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
 
+    class Meta:
+        ordering = ('created_at',)
+
+    def __str__(self):
+        return str(self.user) + ' commented on ' + str(self.plan)
+
 
 class Report(models.Model):
     """
@@ -102,5 +168,58 @@ class Report(models.Model):
                              verbose_name="ユーザー")
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name="reports", verbose_name="プラン")
     text = models.TextField("テキスト")
-    image = models.ImageField("投稿画像", upload_to=get_image_path)
+    image = ProcessedImageField(verbose_name="投稿画像",
+                                upload_to=get_image_path,
+                                processors=[ResizeToFit(*settings.PLANNAP_IMAGE_SIZES['REPORT'])],
+                                format='JPEG',
+                                options={'quality': 80})
     created_at = models.DateTimeField("投稿日時", auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return str(self.user) + ' reported about' + str(self.plan)
+
+
+@receiver(models.signals.post_delete, sender=Spot)
+@receiver(models.signals.post_delete, sender=Report)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    レコード削除時にファイルも削除する
+    """
+    if instance.image:
+        img = instance.image.path
+        if os.path.isfile(img):
+            os.remove(instance.image.path)
+
+
+@receiver(models.signals.pre_save, sender=Spot)
+@receiver(models.signals.pre_save, sender=Report)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    レコードの更新時にファイルの変更があれば古いものを削除する
+    """
+    # PrimaryKeyを持たない（=更新では無く作成の）場合
+    if not instance.pk:
+        return None
+
+    try:
+        old_image = sender.objects.get(pk=instance.pk).image
+    except sender.DoesNotExist:
+        return None
+
+    new_image = instance.image
+    if not old_image == new_image:
+        if os.path.isfile(old_image.path):
+            os.remove(old_image.path)
+
+
+@receiver(models.signals.pre_save, sender=Spot)
+@receiver(models.signals.pre_save, sender=Plan)
+def construct_url_on_change(sender, instance, **kwargs):
+    """
+    更新/作成されたときにGoogle MapへのURLを再設定する
+    """
+    instance.map_url = instance.construct_map_url()
+

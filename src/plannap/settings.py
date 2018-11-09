@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'accounts',
     'plan',
     'django_filters',
+    'django_cleanup',
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,7 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'PORT': int(os.getenv('DB_PORT', '3306')),
+        'ATOMIC_REQUESTS': True,
     }
 }
 
@@ -165,7 +167,10 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DATETIME_FORMAT': "%Y/%m/%d"
+    'DATETIME_FORMAT': "%Y/%m/%d",
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_PAGINATION_CLASS': 'plan.paginations.TimestampCursorPagination',
+    'PAGE_SIZE': 5
 }
 
 JWT_AUTH = {
@@ -176,3 +181,9 @@ JWT_AUTH = {
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+PLANNAP_IMAGE_SIZES = {
+    'ICON': (400, 400),
+    'SPOT': (1200, 1200),
+    'REPORT': (600, 600),
+}
